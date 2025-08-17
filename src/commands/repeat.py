@@ -5,10 +5,13 @@ from src.interfaces.base_command import BaseCommand
 class RepeatCommand(BaseCommand):
     """Команда для повтора Команды, выбросившей исключение"""
     def __init__(self, cmd: BaseCommand):
-        self._command_to_retry = cmd
+        self.command_to_retry = cmd
 
     def __str__(self):
-        return f'{self.__class__.__name__} for command {self._command_to_retry.__class__.__name__}'
+        return f'{self.__class__.__name__} for command {self.command_to_retry.__class__.__name__}'
 
     def execute(self) -> None:
-        self._command_to_retry.execute()
+        self.command_to_retry.execute()
+
+class SecondRepeatCommand(RepeatCommand):
+    """Команда для второго повтора Команды, выбросившей исключение"""

@@ -11,12 +11,15 @@ class CommandHandler:
         self._exception_handler = exception_handler or ExceptionHandler()
 
     def enqueue_command(self, cmd: BaseCommand):
+        """Добавление новой команды в конец очереди"""
         self._queue.put(cmd)
 
     def dequeue_command(self):
+        """Получение первой команды из очереди"""
         return self._queue.get()
 
     def run(self):
+        """Выполнение всех команд из очереди"""
         while not self._queue.empty():
             cmd = self.dequeue_command()
             try:

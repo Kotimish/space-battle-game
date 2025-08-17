@@ -22,19 +22,24 @@ class ExceptionHandler:
         self._default_exception_handlers = default_exceptions or exc_map.DEFAULT_EXCEPTIONS
         self._default_handler = default_handler or exc_map.DEFAULT_HANDLER
 
-    def register_handler(self, cmd: BaseCommand, exception: Exception, handler: Callable):
-        self._handlers[type(cmd)][type(exception)] = handler
+    def register_handler(self, cmd_type: CommandType, exc_type: ExceptionType, handler: HandlerType):
+        """Регистрация нового обработчика на основе типа команды и типа исключения"""
+        self._handlers[cmd_type][exc_type] = handler
 
-    def register_default_handler_for_command(self, cmd: BaseCommand, handler: Callable):
-        self._default_command_handlers[type(cmd)] = handler
+    def register_default_handler_for_command(self, cmd_type: CommandType, handler: HandlerType):
+        """Регистрация нового обработчика на основе типа команды для любого типа исключения"""
+        self._default_command_handlers[cmd_type] = handler
 
-    def register_default_handler_for_exception(self, exception: Exception, handler: Callable):
-        self._default_exception_handlers[type(exception)] = handler
+    def register_default_handler_for_exception(self, exc_type: ExceptionType, handler: HandlerType):
+        """Регистрация нового обработчика на основе типа исключения для любого типа команд"""
+        self._default_exception_handlers[exc_type] = handler
 
-    def register_default_handler(self, handler: Callable):
+    def register_default_handler(self, handler: HandlerType):
+        """Регистрация дефолтного обработчика"""
         self._default_handler = handler
 
     def handle(self, cmd: BaseCommand, exception: Exception) -> BaseCommand:
+        """Получение команды-обработчика на основе команды с исключением"""
         cmd_type = type(cmd)
         exc_type = type(exception)
         # Поиск обработчика
