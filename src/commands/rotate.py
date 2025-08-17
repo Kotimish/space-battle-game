@@ -3,7 +3,7 @@ from src.interfaces.base_command import BaseCommand
 from src.interfaces.rotatable_object import IRotatableObject
 
 
-class Rotate(BaseCommand):
+class RotateCommand(BaseCommand):
     def __init__(self, rotatable: IRotatableObject):
         self._rotatable = rotatable
 

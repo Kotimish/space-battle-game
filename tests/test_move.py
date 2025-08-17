@@ -1,17 +1,17 @@
 import pytest
 
 from src.adapters.movable_adapter import MovableObjectAdapter
-from src.commands.move import Move
+from src.commands.move import MoveCommand
 from src.exceptions.move import UndefinedPositionError, UndefinedVelocityError, UnchangeablePositionError
 from src.models.vector import Vector
 from tests.mock_object import MockUObject
 
 
 def make_movable_object(position: Vector, velocity: Vector) -> MovableObjectAdapter:
-    movable_object = MockUObject()
-    movable_object.set_property("position", position)
-    movable_object.set_property("velocity", velocity)
-    return MovableObjectAdapter(movable_object)
+    data = {"position": position, "velocity": velocity}
+    mock_object = MockUObject(data)
+    movable_object = MovableObjectAdapter(mock_object)
+    return movable_object
 
 
 def test_move_with_valid_params():
@@ -25,7 +25,7 @@ def test_move_with_valid_params():
     end_position = Vector(5, 8)
 
     movable_object = make_movable_object(start_position, velocity)
-    move = Move(movable_object)
+    move = MoveCommand(movable_object)
     move.execute()
 
     assert movable_object.get_position() == end_position
@@ -39,7 +39,7 @@ def test_move_with_invalid_position():
     velocity = Vector(-7, 3)
 
     movable_object = make_movable_object(start_position, velocity)
-    move = Move(movable_object)
+    move = MoveCommand(movable_object)
     with pytest.raises(UndefinedPositionError):
         move.execute()
 
@@ -52,7 +52,7 @@ def test_move_with_invalid_velocity():
     velocity = None
 
     movable_object = make_movable_object(start_position, velocity)
-    move = Move(movable_object)
+    move = MoveCommand(movable_object)
     with pytest.raises(UndefinedVelocityError):
         move.execute()
 
@@ -65,6 +65,6 @@ def test_unchangeable_position():
     velocity = Vector(0, 0)
 
     movable_object = make_movable_object(start_position, velocity)
-    move = Move(movable_object)
+    move = MoveCommand(movable_object)
     with pytest.raises(UnchangeablePositionError):
         move.execute()

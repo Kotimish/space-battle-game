@@ -3,7 +3,7 @@ from src.interfaces.base_command import BaseCommand
 from src.interfaces.movable_object import IMovableObject
 
 
-class Move(BaseCommand):
+class MoveCommand(BaseCommand):
     def __init__(self, movable: IMovableObject):
         self._movable = movable
 

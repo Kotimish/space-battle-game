@@ -4,8 +4,8 @@ from src.interfaces.uobject import UObject
 
 
 class MockUObject(UObject):
-    def __init__(self):
-        self.property_dict: dict[str, Any] = {}
+    def __init__(self, data: dict = None):
+        self.property_dict: dict[str, Any] = data or {}
 
     def get_property(self, key: str) -> Any:
         return self.property_dict.get(key)
