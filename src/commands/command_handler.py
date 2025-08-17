@@ -6,9 +6,9 @@ from src.interfaces.base_command import BaseCommand
 
 class CommandHandler:
     """Класс реализации event loop для команд"""
-    def __init__(self, queue: Queue[BaseCommand], exception_handler: ExceptionHandler):
-        self._queue: Queue[BaseCommand] = queue
-        self._exception_handler = exception_handler
+    def __init__(self, queue: Queue[BaseCommand] = None, exception_handler: ExceptionHandler = None):
+        self._queue = queue or Queue()
+        self._exception_handler = exception_handler or ExceptionHandler()
 
     def enqueue_command(self, cmd: BaseCommand):
         self._queue.put(cmd)
