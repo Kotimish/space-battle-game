@@ -16,9 +16,9 @@ def make_movable_object(position: Vector, velocity: Vector) -> MovableObjectAdap
 
 def test_move_with_valid_params():
     """
-    Тест объекта, находящегося в точке (12, 5) и
+    Тест объекта, находящегося в точке (12, 5),
     движущегося со скоростью (-7, 3)
-    движение меняет положение объекта на (5, 8)
+    на изменение положения на (5, 8)
     """
     start_position = Vector(12, 5)
     velocity = Vector(-7, 3)

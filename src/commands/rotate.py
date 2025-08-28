@@ -4,6 +4,7 @@ from src.interfaces.rotatable_object import IRotatableObject
 
 
 class RotateCommand(BaseCommand):
+    """Команда поворота объекта"""
     def __init__(self, rotatable: IRotatableObject):
         self._rotatable = rotatable
 

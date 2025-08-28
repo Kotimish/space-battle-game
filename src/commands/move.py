@@ -4,6 +4,7 @@ from src.interfaces.movable_object import IMovableObject
 
 
 class MoveCommand(BaseCommand):
+    """Команда движения"""
     def __init__(self, movable: IMovableObject):
         self._movable = movable
 
@@ -13,4 +14,4 @@ class MoveCommand(BaseCommand):
         new_position = velocity + position
         if position == new_position:
             raise UnchangeablePositionError('The object has not changed position.')
-        self._movable.set_position(velocity + position)
+        self._movable.set_position(new_position)
