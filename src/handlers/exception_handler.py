@@ -1,6 +1,6 @@
 from typing import Callable
 
-import src.exceptions.exception_mapping as exc_map
+import src.handlers.exception_mapping as exc_map
 from src.interfaces.base_command import BaseCommand
 
 # Оптимизация типов

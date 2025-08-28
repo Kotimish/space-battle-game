@@ -1,7 +1,7 @@
-from src.commands.command_handler import CommandHandler
 from src.commands.move import MoveCommand
+from src.handlers.command_handler import CommandHandler
 from src.models.vector import Vector
-from tests.test_move import make_movable_object
+from tests.factories import make_movable_object
 
 
 def test_command_handler_with_valid_params():

@@ -1,11 +1,10 @@
 import pytest
 
-from src.commands.rotate_with_velocity import RotateWithVelocityCommand
+from src.commands.macro.rotate_with_velocity import RotateWithVelocityCommand
 from src.exceptions.command import CommandException
 from src.models.angle import Angle
 from src.models.vector import Vector
-from tests.test_change_velocity_command import make_movable_object
-from tests.test_rotate import make_rotatable_object
+from tests.factories import make_rotatable_object, make_movable_with_velocity_object
 
 
 @pytest.mark.parametrize(
@@ -30,7 +29,7 @@ def test_rotate_with_velocity_with_valid_params(
     angle = Angle(0, 8)
     expected_angle = angular_velocity
 
-    movable_object = make_movable_object(position, start_velocity)
+    movable_object = make_movable_with_velocity_object(position, start_velocity)
     rotatable_object = make_rotatable_object(angle, angular_velocity)
     command = RotateWithVelocityCommand(movable_object, rotatable_object)
     command.execute()
@@ -58,7 +57,7 @@ def test_rotate_with_velocity_with_invalid_params(
     position = Vector(0, 0)
     angle = Angle(0, 8)
 
-    movable_object = make_movable_object(position, start_velocity)
+    movable_object = make_movable_with_velocity_object(position, start_velocity)
     rotatable_object = make_rotatable_object(angle, angular_velocity)
     command = RotateWithVelocityCommand(movable_object, rotatable_object)
     with pytest.raises(CommandException) as e:

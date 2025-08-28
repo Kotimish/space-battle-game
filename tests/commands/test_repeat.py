@@ -1,7 +1,7 @@
 from src.commands.move import MoveCommand
 from src.commands.repeat import RepeatCommand
 from src.models.vector import Vector
-from tests.test_move import make_movable_object
+from tests.factories import make_movable_object
 
 
 def test_repeat_command():

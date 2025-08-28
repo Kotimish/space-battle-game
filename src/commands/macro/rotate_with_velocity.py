@@ -1,5 +1,5 @@
 from src.commands.change_velocity_command import ChangeVelocityCommand
-from src.commands.macro_command import MacroCommand
+from src.commands.macro.macro_command import MacroCommand
 from src.commands.rotate import RotateCommand
 from src.interfaces.mutable_velocity_object import IMutableVelocityObject
 from src.interfaces.rotatable_object import IRotatableObject

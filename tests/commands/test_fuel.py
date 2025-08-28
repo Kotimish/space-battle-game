@@ -1,19 +1,9 @@
-from typing import Any
-
 import pytest
 
 import src.commands.fuel_command as commands
 import src.exceptions.fuel_command as exceptions
-from src.adapters.fuel_consumer_adapter import FuelConsumerAdapter
 from src.exceptions.command import CommandException
-from tests.mock_object import MockUObject
-
-
-def make_fuel_consumer_object(fuel_level: int, fuel_consumption: int) -> FuelConsumerAdapter:
-    data = {"fuel_level": fuel_level, "fuel_consumption": fuel_consumption}
-    mock_object = MockUObject(data)
-    fuel_consumer_object = FuelConsumerAdapter(mock_object)
-    return fuel_consumer_object
+from tests.factories import make_fuel_consumer_object
 
 
 @pytest.mark.parametrize(

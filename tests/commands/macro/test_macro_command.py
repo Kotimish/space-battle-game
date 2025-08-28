@@ -1,12 +1,11 @@
 import pytest
 
 from src.commands.fuel_command import CheckFuelCommand, BurnFuelCommand
-from src.commands.macro_command import MacroCommand
+from src.commands.macro.macro_command import MacroCommand
 from src.commands.move import MoveCommand
 from src.exceptions.command import CommandException
 from src.models.vector import Vector
-from tests.test_fuel import make_fuel_consumer_object
-from tests.test_move import make_movable_object
+from tests.factories import make_movable_object, make_fuel_consumer_object
 
 
 def test_macro_command_with_valid_params():

@@ -1,5 +1,5 @@
 from src.commands.fuel_command import CheckFuelCommand, BurnFuelCommand
-from src.commands.macro_command import MacroCommand
+from src.commands.macro.macro_command import MacroCommand
 from src.commands.move import MoveCommand
 from src.interfaces.move_fuel_consumer import IMoveFuelConsumer
 

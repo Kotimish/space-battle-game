@@ -1,10 +1,10 @@
-from src.commands.command_handler import CommandHandler
 from src.commands.move import MoveCommand
 from src.commands.repeat import RepeatCommand, SecondRepeatCommand
-from src.exceptions.exception_handler import ExceptionHandler
 from src.exceptions.move import UnchangeablePositionError
+from src.handlers.command_handler import CommandHandler
+from src.handlers.exception_handler import ExceptionHandler
 from src.models.vector import Vector
-from tests.test_move import make_movable_object
+from tests.factories import make_movable_object
 
 
 def test_success_repeat_command():

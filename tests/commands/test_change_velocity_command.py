@@ -1,20 +1,9 @@
-from types import NoneType
-
 import pytest
 
-from src.adapters.movable_with_velocity_adapter import MovableWithVelocityAdapter
 from src.commands.change_velocity_command import ChangeVelocityCommand
 from src.models.angle import Angle
 from src.models.vector import Vector
-from tests.mock_object import MockUObject
-from tests.test_rotate import make_rotatable_object
-
-
-def make_movable_object(position: Vector, velocity: Vector) -> MovableWithVelocityAdapter:
-    data = {"position": position, "velocity": velocity}
-    mock_object = MockUObject(data)
-    movable_object = MovableWithVelocityAdapter(mock_object)
-    return movable_object
+from tests.factories import make_rotatable_object, make_movable_with_velocity_object
 
 
 @pytest.mark.parametrize(
@@ -34,7 +23,7 @@ def test_change_velocity_with_valid_params(start_velocity: Vector, angular_veloc
     position = Vector(0, 0)
     angle = Angle(0, 8)
 
-    movable_object = make_movable_object(position, start_velocity)
+    movable_object = make_movable_with_velocity_object(position, start_velocity)
     rotatable_object = make_rotatable_object(angle, angular_velocity)
     command = ChangeVelocityCommand(movable_object, rotatable_object)
     command.execute()
@@ -60,7 +49,7 @@ def test_change_velocity_with_zero_velocity(angular_velocity: Angle):
 
     angle = Angle(0, 8)
 
-    movable_object = make_movable_object(position, start_velocity)
+    movable_object = make_movable_with_velocity_object(position, start_velocity)
     rotatable_object = make_rotatable_object(angle, angular_velocity)
     command = ChangeVelocityCommand(movable_object, rotatable_object)
     command.execute()
@@ -85,7 +74,7 @@ def test_change_velocity_with_zero_angular_velocity(velocity: Vector):
     angle = Angle(0, 8)
     angular_velocity = Angle(0, 8)
 
-    movable_object = make_movable_object(position, velocity)
+    movable_object = make_movable_with_velocity_object(position, velocity)
     rotatable_object = make_rotatable_object(angle, angular_velocity)
     command = ChangeVelocityCommand(movable_object, rotatable_object)
     command.execute()

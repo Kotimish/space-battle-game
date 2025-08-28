@@ -1,6 +1,6 @@
 from queue import Queue
 
-from src.exceptions.exception_handler import ExceptionHandler
+from src.handlers.exception_handler import ExceptionHandler
 from src.interfaces.base_command import BaseCommand
 
 

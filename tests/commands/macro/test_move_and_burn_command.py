@@ -1,29 +1,9 @@
 import pytest
 
-from src.adapters.move_fuel_consumer_adapter import MoveFuelConsumer
-from src.commands.move_with_fuel_command import MoveWithFuelCommand
+from src.commands.macro.move_with_fuel_command import MoveWithFuelCommand
 from src.exceptions.command import CommandException
-from src.interfaces.move_fuel_consumer import IMoveFuelConsumer
 from src.models.vector import Vector
-from tests.mock_object import MockUObject
-
-
-def make_movable_fuel_consumer(
-        position: Vector,
-        velocity: Vector,
-        fuel_level: int,
-        fuel_consumption: int
-) -> IMoveFuelConsumer:
-    data = {
-        "position": position,
-        "velocity": velocity,
-        "fuel_level": fuel_level,
-        "fuel_consumption": fuel_consumption
-    }
-    mock_object = MockUObject(data)
-    movable_object = MoveFuelConsumer(mock_object)
-    return movable_object
-
+from tests.factories import make_movable_fuel_consumer
 
 
 def test_macro_command_with_valid_params():
