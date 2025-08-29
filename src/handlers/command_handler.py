@@ -1,6 +1,6 @@
 from queue import Queue
 
-from src.exceptions.exception_handler import ExceptionHandler
+from src.handlers.exception_handler import ExceptionHandler
 from src.interfaces.base_command import BaseCommand
 
 
@@ -21,9 +21,9 @@ class CommandHandler:
     def run(self):
         """Выполнение всех команд из очереди"""
         while not self._queue.empty():
-            cmd = self.dequeue_command()
+            command = self.dequeue_command()
             try:
-                cmd.execute()
+                command.execute()
             except Exception as exception:
-                handler = self._exception_handler.handle(cmd, exception)
+                handler = self._exception_handler.handle(command, exception)
                 self.enqueue_command(handler)

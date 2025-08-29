@@ -1,17 +1,9 @@
 import pytest
 
-from src.adapters.rotatable_adapter import RotatableObjectAdapter
 from src.commands.rotate import RotateCommand
 from src.exceptions.rotate import UndefinedAngleError, UndefinedAngularVelocityError, UnchangeableAngleError
 from src.models.angle import Angle
-from tests.mock_object import MockUObject
-
-
-def make_rotatable_object(angle: Angle, angular_velocity: Angle) -> RotatableObjectAdapter:
-    data = {"angle": angle, "angular_velocity": angular_velocity}
-    mock_object = MockUObject(data)
-    rotatable_object = RotatableObjectAdapter(mock_object)
-    return rotatable_object
+from tests.factories import make_rotatable_object
 
 
 def test_rotate_with_valid_params():

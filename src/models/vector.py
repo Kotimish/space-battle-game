@@ -1,3 +1,5 @@
+import math
+
 
 class Vector:
     def __init__(self, x: int, y: int):
@@ -19,3 +21,6 @@ class Vector:
             self.x == other.x and
             self.y == other.y
         )
+
+    def __len__(self):
+        return round(math.sqrt(pow(self.x, 2) + pow(self.y, 2)))
