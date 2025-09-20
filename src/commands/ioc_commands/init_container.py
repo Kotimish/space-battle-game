@@ -52,7 +52,7 @@ class InitContainerCommand(BaseCommand):
             # Регистрация дефолтных команд в корневом пространстве
             self._root_scope.dependencies.update(default_dependencies)
 
-            update_command = IoC.resolve(
+            update_command = IoC[BaseCommand].resolve(
                 'IoC.UpdateResolveStrategy',
                 lambda old_strategy: BasicDependencyResolver(self._all_scopes, self._current_scope, self._root_scope)
             )
