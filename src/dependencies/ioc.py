@@ -11,8 +11,7 @@ class UpdateResolveDependencyStrategyCommand(BaseCommand):
         self.strategy_updater = strategy_updater
 
     def execute(self) -> None:
-        new_strategy = self.strategy_updater(IoC.dependency_resolver)
-        IoC.dependency_resolver = new_strategy
+        IoC.update_resolver(self.strategy_updater)
 
 
 class DefaultDependencyResolver(IDependencyResolver):
@@ -23,10 +22,16 @@ class DefaultDependencyResolver(IDependencyResolver):
         raise exceptions.DependencyNotFoundError(f"Dependency '{dependency}' not registered")
 
 
-class IoC:
+class IoC[T]:
     """IoC-контейнер для разрешения зависимостей"""
     dependency_resolver: IDependencyResolver = DefaultDependencyResolver()
 
     @classmethod
-    def resolve(cls, dependency_name: str, *args: Any, **kwargs: Any) -> Any:
+    def resolve(cls, dependency_name: str, *args: Any, **kwargs: Any) -> T:
+        """Разрешение зависимости"""
         return cls.dependency_resolver.resolve(dependency_name, *args, **kwargs)
+
+    @classmethod
+    def update_resolver(cls, updater: Callable[[IDependencyResolver], IDependencyResolver]):
+        """Обновление модуля разрешения зависимостей"""
+        cls.dependency_resolver = updater(cls.dependency_resolver)
