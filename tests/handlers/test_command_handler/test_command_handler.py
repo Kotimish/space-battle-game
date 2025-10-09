@@ -1,3 +1,4 @@
+from src.commands.control.start_command_handler import StartCommandHandler
 from src.commands.move import MoveCommand
 from src.handlers.command_handler import CommandHandler
 from src.models.vector import Vector
@@ -11,6 +12,6 @@ def test_command_handler_with_valid_params():
     command = MoveCommand(movable_object)
     command_handler = CommandHandler()
     command_handler.enqueue_command(command)
-    command_handler.run()
+    StartCommandHandler(command_handler).execute()
 
     assert movable_object.get_position() == Vector(5, 8)

@@ -18,8 +18,6 @@ def test_rotate_with_valid_params():
     rotate = RotateCommand(rotate_object)
     rotate.execute()
 
-    print(rotate_object.get_angle())
-    print(end_angle)
     assert rotate_object.get_angle() == end_angle
 
 

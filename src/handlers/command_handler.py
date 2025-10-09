@@ -2,23 +2,24 @@ from queue import Queue
 
 from src.handlers.exception_handler import ExceptionHandler
 from src.interfaces.base_command import BaseCommand
+from src.interfaces.command_handler import ICommandHandler
 
 
-class CommandHandler:
-    """Класс реализации event loop для команд"""
+class CommandHandler(ICommandHandler):
+    """Класс реализации блокирующего event-loop для команд"""
     def __init__(self, queue: Queue[BaseCommand] = None, exception_handler: ExceptionHandler = None):
         self._queue = queue or Queue()
         self._exception_handler = exception_handler or ExceptionHandler()
 
-    def enqueue_command(self, cmd: BaseCommand):
+    def enqueue_command(self, cmd: BaseCommand) -> None:
         """Добавление новой команды в конец очереди"""
         self._queue.put(cmd)
 
-    def dequeue_command(self):
+    def dequeue_command(self) -> BaseCommand:
         """Получение первой команды из очереди"""
         return self._queue.get()
 
-    def run(self):
+    def _run(self) -> None:
         """Выполнение всех команд из очереди"""
         while not self._queue.empty():
             command = self.dequeue_command()
@@ -27,3 +28,6 @@ class CommandHandler:
             except Exception as exception:
                 handler = self._exception_handler.handle(command, exception)
                 self.enqueue_command(handler)
+
+    def start(self) -> None:
+        self._run()
