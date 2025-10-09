@@ -46,7 +46,7 @@ def test_fail_repeat_command(caplog):
     # Обработчик команд
     command_handler = CommandHandler(None, exception_handler)
     command_handler.enqueue_command(command)
-    command_handler.run()
+    command_handler.start()
 
     # Проверяем, что сообщение появилось в логах
     assert expected_message in caplog.text
@@ -76,7 +76,7 @@ def test_two_repeats_command(caplog):
     # Обработчик команд
     command_handler = CommandHandler(None, exception_handler)
     command_handler.enqueue_command(command)
-    command_handler.run()
+    command_handler.start()
 
     # Проверяем, что сообщение появилось в логах
     assert expected_message in caplog.text
