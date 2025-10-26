@@ -7,6 +7,7 @@ from src.interfaces.command_handler import ICommandHandler
 
 class CommandHandler(ICommandHandler):
     """Класс реализации блокирующего event-loop для команд"""
+
     def __init__(self, queue: Queue[BaseCommand] = None, exception_handler: ExceptionHandler = None):
         self._queue = queue or Queue()
         self._exception_handler = exception_handler or ExceptionHandler()
@@ -31,3 +32,7 @@ class CommandHandler(ICommandHandler):
 
     def start(self) -> None:
         self._run()
+
+    def stop(self) -> None:
+        # Ничего не делаем — обработчик и так завершится после выполнения всех команд
+        pass

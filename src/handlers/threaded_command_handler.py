@@ -1,5 +1,5 @@
 import threading
-from queue import Queue
+from queue import Queue, Empty
 
 from src.handlers.command_handler import CommandHandler
 from src.handlers.exception_handler import ExceptionHandler
@@ -19,6 +19,9 @@ class ThreadedCommandHandler(ICommandHandler):
         # Команды до и после отработки команд в потоке
         self._before_hooks = CommandHandler()
         self._after_hooks = CommandHandler()
+        # Иные настройки
+        # todo возможно потребуется изменить в дальнейшем в зависимости от нагрузки
+        self.timeout = 0.1
 
     def enqueue_command(self, cmd: BaseCommand) -> None:
         """Добавление новой команды в конец очереди"""
@@ -26,7 +29,7 @@ class ThreadedCommandHandler(ICommandHandler):
 
     def dequeue_command(self) -> BaseCommand:
         """Получение первой команды из очереди"""
-        return self._queue.get()
+        return self._queue.get(timeout=self.timeout)
 
     def _run(self) -> None:
         """Выполнение всех команд из очереди"""
@@ -37,7 +40,10 @@ class ThreadedCommandHandler(ICommandHandler):
                 self._running.is_set() or
                 (not self._queue.empty() and self._soft_stop)
         ):
-            command = self.dequeue_command()
+            try:
+                command = self.dequeue_command()
+            except Empty:
+                continue
             try:
                 command.execute()
             except Exception as exception:
@@ -53,6 +59,10 @@ class ThreadedCommandHandler(ICommandHandler):
         self._running.set()
         self._worker = threading.Thread(target=self._run)
         self._worker.start()
+
+    def stop(self) -> None:
+        # по умолчанию мягкая остановка
+        self.soft_stop()
 
     def hard_stop(self) -> None:
         self._running.clear()
