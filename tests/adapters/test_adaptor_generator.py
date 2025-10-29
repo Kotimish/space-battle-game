@@ -5,7 +5,7 @@ from src.factories.adaptor_factory import AdapterFactory
 from src.dependencies.ioc import IoC
 from src.interfaces.base_command import BaseCommand
 from src.interfaces.uobject import UObject
-from tests.mock_object import MockUObject
+from src.models.uobject import DictUObject
 
 
 class ITest(ABC):
@@ -29,7 +29,7 @@ def test_adaptor_generator():
     # Получение фабрики адаптеров под интерфейс
     adapter_class = AdapterFactory.get_adapter(ITest)
     # Создание адаптера
-    uobject: UObject = MockUObject()
+    uobject: UObject = DictUObject()
     adapter = adapter_class(uobject)
     assert hasattr(adapter, 'get_test_value')
     assert hasattr(adapter, 'set_test_value')
@@ -48,7 +48,7 @@ def test_adaptor_get_method():
     get_factory = lambda obj, key, *args, **kwargs: obj.get_property(key)
     IoC[BaseCommand].resolve('IoC.Register', 'ITest:test_value.get', get_factory).execute()
     # Создание адаптера
-    uobject = MockUObject(data)
+    uobject = DictUObject(data)
     adapter = adapter_class(uobject)
     assert adapter.get_test_value() == data['test_value']
 
@@ -64,7 +64,7 @@ def test_adaptor_set_method():
     get_factory = lambda obj, key, *args, **kwargs: obj.get_property(key)
     IoC[BaseCommand].resolve('IoC.Register', 'ITest:test_value.get', get_factory).execute()
     # Создание адаптера
-    uobject = MockUObject()
+    uobject = DictUObject()
     adapter = adapter_class(uobject)
     adapter.set_test_value(test_value)
 
@@ -81,7 +81,7 @@ def test_adapter_generic_method():
     sum_factory = lambda first_value, second_value, *args, **kwargs: first_value + second_value
     IoC[BaseCommand].resolve('IoC.Register', 'ITest:sum', sum_factory).execute()
     # Создание адаптера
-    uobject = MockUObject()
+    uobject = DictUObject()
     adapter = adapter_class(uobject)
 
     assert adapter.sum(test_first_value, test_second_value) == test_first_value + test_second_value
@@ -98,7 +98,7 @@ def test_ioc_adapter():
     # Получение фабрики адаптеров под интерфейс
     adapter_class = IoC[Type[ITest]].resolve('Adapter', ITest)
     # Создание адаптера
-    uobject = MockUObject()
+    uobject = DictUObject()
     adapter = adapter_class(uobject)
 
     assert isinstance(adapter, ITest)

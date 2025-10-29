@@ -25,3 +25,8 @@ class ICommandHandler(ABC):
         """
         raise NotImplementedError
 
+
+    @abstractmethod
+    def stop(self) -> None:
+        """Корректная остановка обработчика."""
+        raise NotImplementedError
