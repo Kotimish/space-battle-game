@@ -10,8 +10,8 @@ from src.game_manager import GameManager
 from src.models.agent_message import AgentMessage
 
 router = APIRouter(
-    prefix="/game",
-    tags=["game"],
+    prefix="/games",
+    tags=["games"],
 )
 
 
@@ -100,7 +100,7 @@ async def get_game_state(
     return {"game_id": game_id, "objects": result}
 
 
-@router.get('/{game_id}/object/{object_id}')
+@router.get('/{game_id}/objects/{object_id}')
 async def get_object_state(
     game_id: str,
     object_id: str,

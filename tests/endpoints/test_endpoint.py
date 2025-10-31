@@ -77,7 +77,7 @@ def create_game_session(test_client: TestClient) -> str:
     :param test_client: Клиент для обмена сообщений с тестируемым сервером
     :return: Идентификатор игровой сессии
     """
-    response = test_client.post(f'/game')
+    response = test_client.post(f'/games')
     assert response.status_code == 200
     data = response.json()
     assert 'game_id' in data
@@ -92,7 +92,7 @@ def delete_game_session(test_client: TestClient, game_id: str) -> None:
     """
     # Удаляем игровую сессию
     response = test_client.delete(
-        f'/game/{game_id}'
+        f'/games/{game_id}'
     )
     assert response.status_code == 200
     data = response.json()
@@ -184,7 +184,7 @@ def endpoint_worker(
 
     # Проверяем получение статуса игровой сессии и всех объектов в ней
     response = test_client.get(
-        f'/game/{game_id}'
+        f'/games/{game_id}'
     )
     assert response.status_code == 200
     data = response.json()
@@ -201,7 +201,7 @@ def endpoint_worker(
         expect_data = expected_game_objects[object_id]
         # Проверяем статус игрового объекта до изменения
         response = test_client.get(
-            f'/game/{game_id}/object/{object_id}'
+            f'/games/{game_id}/objects/{object_id}'
         )
         assert response.status_code == 200
         data = response.json()
@@ -209,7 +209,7 @@ def endpoint_worker(
 
         # Проверяем интерпретацию команды
         response = test_client.post(
-            f'/game/command',
+            f'/games/command',
             json={
                 "game_id": game_id,
                 "object_id": object_id,
@@ -226,7 +226,7 @@ def endpoint_worker(
 
         # Проверяем запрос к игровому объекту
         response = test_client.get(
-            f'/game/{game_id}/object/{object_id}'
+            f'/games/{game_id}/objects/{object_id}'
         )
         assert response.status_code == 200
         data = response.json()
@@ -236,7 +236,7 @@ def endpoint_worker(
 
     # Проверяем статус игровой сессии после выполнения команд
     response = test_client.get(
-        f'/game/{game_id}'
+        f'/games/{game_id}'
     )
     assert response.status_code == 200
     data = response.json()
