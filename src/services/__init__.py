@@ -1,5 +1,5 @@
 __all__ = (
-    'InMemoryObjectRepository',
+    'GameManager',
 )
 
-from src.repositories.object_repository import InMemoryObjectRepository
+from src.services.game_manager import GameManager
