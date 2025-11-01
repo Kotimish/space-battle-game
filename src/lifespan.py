@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from src.commands.ioc_commands.init_container import InitContainerCommand
 from src.commands.ioc_commands.reset_container import ResetContainerCommand
 from src.dependencies.ioc import IoC
-from src.game_manager import GameManager
+from src.services.game_manager import GameManager
 from src.interfaces.base_command import BaseCommand
 
 

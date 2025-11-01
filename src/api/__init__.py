@@ -1,8 +1,14 @@
 from fastapi import APIRouter
 
 from src.api.routers import health_router
-from src.api.routers import agent_router
+from src.api.routers import games_router
+from src.api.routers import game_objects_router
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api",
+    tags=["api"],
+)
+
 router.include_router(health_router)
-router.include_router(agent_router)
+router.include_router(games_router)
+router.include_router(game_objects_router)
