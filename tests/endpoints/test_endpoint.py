@@ -11,7 +11,7 @@ from src.commands.macro.move_with_fuel_command import MoveWithFuelCommand
 from src.dependencies.ioc import IoC
 from src.factories.commands.create_move_with_fuel_command import MoveWithFuelCommandFactory
 from src.factories.operation_router import OperationToCommandRouter
-from src.game_manager import GameManager
+from src.services.game_manager import GameManager
 from src.interfaces.base_command import BaseCommand
 from src.interfaces.uobject import UObject
 from src.main import app
@@ -47,7 +47,7 @@ def initial_game_objects() -> dict[str, UObject]:
     Предоставляет начальное состояние игровых объектов для тестов.
     """
     return {
-        'game_0': DictUObject({
+        'object_0': DictUObject({
             'position': Vector(0, 0),
             'velocity': Vector(10, 0),
             'fuel_level': 100,
@@ -62,7 +62,7 @@ def expected_game_objects() -> dict[str, UObject]:
     Предоставляет ожидаемое состояние игровых объектов после выполнения команды.
     """
     return {
-        'game_0': DictUObject({
+        'object_0': DictUObject({
             'position': Vector(10, 0),
             'velocity': Vector(10, 0),
             'fuel_level': 0,
@@ -77,7 +77,7 @@ def create_game_session(test_client: TestClient) -> str:
     :param test_client: Клиент для обмена сообщений с тестируемым сервером
     :return: Идентификатор игровой сессии
     """
-    response = test_client.post(f'/games')
+    response = test_client.post(f'/api/games')
     assert response.status_code == 200
     data = response.json()
     assert 'game_id' in data
@@ -91,9 +91,7 @@ def delete_game_session(test_client: TestClient, game_id: str) -> None:
     :param game_id: Идентификатор игровой сессии
     """
     # Удаляем игровую сессию
-    response = test_client.delete(
-        f'/games/{game_id}'
-    )
+    response = test_client.delete( f'/api/games/{game_id}')
     assert response.status_code == 200
     data = response.json()
     assert 'status' in data
@@ -182,34 +180,38 @@ def endpoint_worker(
     # Регистрируем зависимости в очереди игровой сессии
     init_dependencies(game_id, initial_game_objects)
 
-    # Проверяем получение статуса игровой сессии и всех объектов в ней
-    response = test_client.get(
-        f'/games/{game_id}'
-    )
+    # Проверяем количество игровых сессий и наличие тестируемой
+    response = test_client.get(f'/api/games')
     assert response.status_code == 200
     data = response.json()
-    assert 'game_id' in data
-    assert data['game_id'] == game_id
-    assert 'objects' in data
+    assert 'games' in data
+    assert len(data['games']) == 1
+    # Проверяем статус игровой сессии
+    response = test_client.get(f'/api/games/{game_id}')
+    assert response.status_code == 200
+    data = response.json()
+    assert 'id' in data
+    assert data['id'] == game_id
+    # Проверяем игровые объекты
+    response = test_client.get(f'/api/games/{game_id}/objects')
+    data = response.json()
     assert len(data['objects']) == len(initial_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data['objects'][key] == initial_game_objects[key].to_dict()
+        assert data[key] == initial_game_objects[key].to_dict()
 
     # Проверяем игровые объекты
     for object_id in initial_game_objects:
         init_data = initial_game_objects[object_id]
         expect_data = expected_game_objects[object_id]
         # Проверяем статус игрового объекта до изменения
-        response = test_client.get(
-            f'/games/{game_id}/objects/{object_id}'
-        )
+        response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-        assert data['object'] == init_data.to_dict()
+        assert data == init_data.to_dict()
 
         # Проверяем интерпретацию команды
         response = test_client.post(
-            f'/games/command',
+            f'/api/games/command',
             json={
                 "game_id": game_id,
                 "object_id": object_id,
@@ -225,30 +227,38 @@ def endpoint_worker(
         assert data['status'] == 'accepted'
 
         # Проверяем запрос к игровому объекту
-        response = test_client.get(
-            f'/games/{game_id}/objects/{object_id}'
-        )
+        response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-
-        assert 'object' in data
-        assert data['object'] == expect_data.to_dict()
+        assert data == expect_data.to_dict()
 
     # Проверяем статус игровой сессии после выполнения команд
-    response = test_client.get(
-        f'/games/{game_id}'
-    )
-    assert response.status_code == 200
+    response = test_client.get(f'/api/games/{game_id}/objects')
     data = response.json()
-    assert 'game_id' in data
-    assert data['game_id'] == game_id
-    assert 'objects' in data
     assert len(data['objects']) == len(expected_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data['objects'][key] == expected_game_objects[key].to_dict()
+        assert data[key] == expected_game_objects[key].to_dict()
+
+    # response = test_client.get(
+    #     f'/games/{game_id}/objects'
+    # )
+    # assert response.status_code == 200
+    # data = response.json()
+    # assert 'id' in data
+    # assert data['game_id'] == game_id
+    # assert 'objects' in data
+    # assert len(data['objects']) == len(expected_game_objects.keys())
+    # for key in initial_game_objects.keys():
+    #     assert data['objects'][key] == expected_game_objects[key].to_dict()
 
     # Завершение игровой сессии
     delete_game_session(test_client, game_id)
+    # Проверяем число игровых сессий
+    response = test_client.get(f'/api/games')
+    assert response.status_code == 200
+    data = response.json()
+    assert 'games' in data
+    assert len(data['games']) == 0
 
 
 @pytest.mark.parametrize(

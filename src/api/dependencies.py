@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from fastapi.requests import Request
 
 from src.dependencies.ioc import IoC
-from src.game_manager import GameManager
+from src.services.game_manager import GameManager
 from src.interfaces.base_command import BaseCommand
 
 

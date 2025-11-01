@@ -17,6 +17,7 @@ def _generate_session_name() -> str:
 
 class GameManager:
     """Класс управления жизненным циклом игровых сессий - обработчиков очередей команд"""
+
     def __init__(self):
         self._handlers: dict[str, ICommandHandler] = {}
         self._lock = Lock()
@@ -51,6 +52,11 @@ class GameManager:
             if game_id not in self._handlers:
                 raise exceptions.GameNotFoundError(f"Game '{game_id}' does not found.")
             return self._handlers[game_id]
+
+    def get_all(self) -> list[str]:
+        """Возвращает список ID всех активных игровых сессий."""
+        with self._lock:
+            return list(self._handlers.keys())
 
     def stop_game(self, game_id: str) -> None:
         """Остановка игровой сессии по ID"""
