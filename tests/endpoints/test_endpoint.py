@@ -197,7 +197,7 @@ def endpoint_worker(
     data = response.json()
     assert len(data['objects']) == len(initial_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data[key] == initial_game_objects[key].to_dict()
+        assert data['objects'][key] == initial_game_objects[key].to_dict()
 
     # Проверяем игровые объекты
     for object_id in initial_game_objects:
@@ -237,19 +237,7 @@ def endpoint_worker(
     data = response.json()
     assert len(data['objects']) == len(expected_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data[key] == expected_game_objects[key].to_dict()
-
-    # response = test_client.get(
-    #     f'/games/{game_id}/objects'
-    # )
-    # assert response.status_code == 200
-    # data = response.json()
-    # assert 'id' in data
-    # assert data['game_id'] == game_id
-    # assert 'objects' in data
-    # assert len(data['objects']) == len(expected_game_objects.keys())
-    # for key in initial_game_objects.keys():
-    #     assert data['objects'][key] == expected_game_objects[key].to_dict()
+        assert data['objects'][key] == expected_game_objects[key].to_dict()
 
     # Завершение игровой сессии
     delete_game_session(test_client, game_id)
