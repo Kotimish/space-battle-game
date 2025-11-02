@@ -1,8 +1,10 @@
 from typing import Any
+
+from src.interfaces.serializable import Serializable
 from src.interfaces.uobject import UObject
 
 # Стандартные типы данных
-STANDARD_TYPES = (int, float, str, bool,)
+STANDARD_TYPES = (int, float, str, bool, type(None))
 
 class DictUObject(UObject):
     def __init__(self, data: dict = None):
@@ -17,14 +19,29 @@ class DictUObject(UObject):
     def check_property(self, key: str) -> bool:
         return key in self.property_dict
 
+    def _to_dict(self, value) -> Any:
+        if isinstance(value, Serializable):
+            return value.to_dict()
+        elif isinstance(value, STANDARD_TYPES):
+            return value
+        elif isinstance(value, (list, tuple)):
+            return [
+                self._to_dict(item)
+                for item in value
+            ]
+        elif isinstance(value, dict):
+            return {
+                str(dict_key): self._to_dict(dict_value)
+                for dict_key, dict_value in value.items()
+            }
+        else:
+            raise TypeError(f"Cannot serialize value of type {type(value)}: {value}")
+
     def to_dict(self) -> dict[str, Any]:
-        result = {}
-        for key, value in self.property_dict.items():
-            if isinstance(value, STANDARD_TYPES):
-                result[key] = value
-            elif hasattr(value, 'to_dict'):
-                result[key] = value.to_dict()
-        return result
+        return {
+            key: self._to_dict(value)
+            for (key), value in self.property_dict.items()
+        }
 
 
     def __str__(self) -> str:
