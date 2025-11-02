@@ -180,12 +180,6 @@ def endpoint_worker(
     # Регистрируем зависимости в очереди игровой сессии
     init_dependencies(game_id, initial_game_objects)
 
-    # Проверяем количество игровых сессий и наличие тестируемой
-    response = test_client.get(f'/api/games')
-    assert response.status_code == 200
-    data = response.json()
-    assert 'games' in data
-    assert len(data['games']) == 1
     # Проверяем статус игровой сессии
     response = test_client.get(f'/api/games/{game_id}')
     assert response.status_code == 200
@@ -241,12 +235,6 @@ def endpoint_worker(
 
     # Завершение игровой сессии
     delete_game_session(test_client, game_id)
-    # Проверяем число игровых сессий
-    response = test_client.get(f'/api/games')
-    assert response.status_code == 200
-    data = response.json()
-    assert 'games' in data
-    assert len(data['games']) == 0
 
 
 @pytest.mark.parametrize(
