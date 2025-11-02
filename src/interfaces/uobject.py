@@ -21,5 +21,5 @@ class UObject(ABC):
 
     @abstractmethod
     def to_dict(self) -> dict[str, Any]:
-        """"Сериализует объект в словарь для внешнего представления."""
+        """Сериализует объект в словарь для внешнего представления."""
         raise NotImplementedError
