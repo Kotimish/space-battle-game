@@ -1,4 +1,6 @@
 from typing import Any
+
+from src.interfaces.serializable import Serializable
 from src.interfaces.uobject import UObject
 
 # Стандартные типы данных
@@ -18,7 +20,7 @@ class DictUObject(UObject):
         return key in self.property_dict
 
     def _to_dict(self, value) -> Any:
-        if hasattr(value, 'to_dict'):
+        if isinstance(value, Serializable):
             return value.to_dict()
         elif isinstance(value, STANDARD_TYPES):
             return value
