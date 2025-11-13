@@ -1,11 +1,12 @@
 # src/interfaces/operation_router.py
 from abc import ABC, abstractmethod
-from src.interfaces.command_factory import ICommandFactory
+from src.interfaces.factories.object_command_factory import IObjectCommandFactory
+
 
 class IOperationRouter(ABC):
     """Интерфейс маршрутизатора операций к фабрикам команд."""
     @abstractmethod
-    def get_factory(self, operation_id: str) -> type[ICommandFactory]:
+    def get_factory(self, operation_id: str) -> type[IObjectCommandFactory]:
         """
         Возвращает класс фабрики команды по строковому идентификатору операции.
         :param operation_id: Идентификатор операции.

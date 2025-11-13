@@ -25,14 +25,14 @@ class Vector:
     def __len__(self):
         return round(math.sqrt(pow(self.x, 2) + pow(self.y, 2)))
 
-    def to_dict(self) -> dict[str, int]:
+    def serialize(self) -> dict[str, int]:
         return {
             "x": self.x,
             "y": self.y,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, int]) -> 'Vector':
+    def deserialize(cls, data: dict[str, int]) -> 'Vector':
         return cls(
             x=data["x"],
             y=data["y"],

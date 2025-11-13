@@ -5,8 +5,8 @@ from src.interfaces.base_command import BaseCommand
 from src.interfaces.uobject import UObject
 
 
-class ICommandFactory(ABC):
-    """Интерфейс фабрики"""
+class IObjectCommandFactory(ABC):
+    """Интерфейс фабрики команд над объектами"""
     @abstractmethod
     def create(self, game_object: UObject, arguments: dict[str, Any]) -> BaseCommand:
         """

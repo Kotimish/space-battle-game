@@ -33,14 +33,14 @@ class Angle:
     def get_radians(self) -> float:
         return (2 * math.pi / self.directions_number) * self.direction
 
-    def to_dict(self) -> dict[str, int]:
+    def serialize(self) -> dict[str, int]:
         return {
             "direction": self.direction,
             "directions_number": self.directions_number,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, int]) -> 'Angle':
+    def deserialize(cls, data: dict[str, int]) -> 'Angle':
         return cls(
             direction=data["direction"],
             directions_number=data["directions_number"],

@@ -19,7 +19,7 @@ class DefaultDependencyResolver(IDependencyResolver):
     def resolve(self, dependency: str, *args, **kwargs) -> Any:
         if dependency == 'IoC.UpdateResolveStrategy':
             return UpdateResolveDependencyStrategyCommand(*args, **kwargs)
-        raise exceptions.DependencyNotFoundError(f"Dependency '{dependency}' not registered")
+        raise exceptions.DependencyNotFoundError(f"Dependency \'{dependency}\' not registered")
 
 
 class IoC[T]:

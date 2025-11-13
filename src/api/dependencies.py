@@ -2,22 +2,32 @@ import asyncio
 from concurrent.futures import Future
 
 from fastapi import HTTPException
-from fastapi.requests import Request
 
 from src.dependencies.ioc import IoC
-from src.services.game_manager import GameManager
 from src.interfaces.base_command import BaseCommand
+from src.interfaces.serializers.uobject_serializer import IGameObjectSerializer
+from src.services.game_service import GameService
 
 
-async def get_game_manager() -> GameManager:
+def get_game_service() -> GameService:
     """
-    Получение экземпляра менеджера игровых сессий из IoC-контейнера.
+    Получение через IoC-контейнер сервиса игровых сессий.
 
-    Также устанавливает инфраструктурный скоуп через IoC для защиты от неявных сбросов скоупов
-    :return: Менеджер игровых сессий - обработчиков команд
+    Явно устанавливает скоуп 'infrastructure_scope', чтобы гарантировать,
+    что разрешение зависимости происходит в правильном контексте (основной поток).
+    :return: Менеджер управления игровых сессий - обработчиков команд
     """
     IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
-    return IoC[GameManager].resolve('Game.QueueManager')
+    return IoC[GameService].resolve('GameService')
+
+
+def get_serializer() -> IGameObjectSerializer:
+    """
+    Получение через IoC-контейнер сериализатора игровых сессий.
+    :return: Класс сериализации/десериализации
+    """
+    IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
+    return IoC[IGameObjectSerializer].resolve('GameObjectSerializer')
 
 
 async def wait_for_threaded_future(future: Future, timeout: float):

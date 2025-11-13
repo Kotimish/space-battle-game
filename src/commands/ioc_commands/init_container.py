@@ -43,7 +43,7 @@ class InitContainerCommand(BaseCommand):
                 'IoC.Register': lambda *args, **kwargs: RegisterDependencyCommand(self._current_scope, *args, **kwargs),
                 # Команды Scope
                 'IoC.Scope.Set': lambda *args, **kwargs: set_scope.SetScopeCommand(self._all_scopes, self._current_scope, *args, **kwargs),
-                'IoC.Scope.Pop': lambda *args, **kwargs: pop_scope.PopScopeCommand(self._all_scopes, self._current_scope),
+                'IoC.Scope.Pop': lambda *args, **kwargs: pop_scope.PopScopeCommand(self._all_scopes, self._current_scope, *args, **kwargs),
                 'IoC.Scope.Reset': lambda *args, **kwargs: reset_scope.ResetScopeCommand(self._all_scopes, self._current_scope),
                 'IoC.Scope.Current': lambda *args, **kwargs: get_current_scope.GetCurrentScopeCommand(self._current_scope, self._root_scope),
                 'IoC.Scope.Parent': lambda *args, **kwargs: get_parent_scope.GetParentScopeCommand(),

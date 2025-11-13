@@ -1,9 +1,9 @@
 from src.dependencies.ioc import IoC
 from src.interfaces.base_command import BaseCommand
-from src.interfaces.command_factory import ICommandFactory
+from src.interfaces.factories.object_command_factory import IObjectCommandFactory
 from src.interfaces.uobject import UObject
 from src.exceptions import game_object as object_exceptions
-from src.models.agent_message import AgentMessage
+from src.schemas.agent_message import AgentMessage
 
 
 class InterpretCommand(BaseCommand):
@@ -21,7 +21,7 @@ class InterpretCommand(BaseCommand):
         if game_object is None:
             raise object_exceptions.ObjectNotFoundError(f"Game object '{self._message.object_id}' does not exist.")
         # По названию операции получаем фабрику команды
-        factory_class = IoC[type[ICommandFactory]].resolve("OperationToCommandMap", self._message.operation_id)
+        factory_class = IoC[type[IObjectCommandFactory]].resolve("OperationToCommandMap", self._message.operation_id)
         factory = factory_class()
         # Создаём и выполняем команду
         cmd = factory.create(game_object, self._message.arguments)

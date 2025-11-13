@@ -18,8 +18,3 @@ class UObject(ABC):
     def check_property(self, key: str) -> bool:
         """Проверяет, существует ли свойство с указанным именем."""
         raise NotImplementedError
-
-    @abstractmethod
-    def to_dict(self) -> dict[str, Any]:
-        """Сериализует объект в словарь для внешнего представления."""
-        raise NotImplementedError

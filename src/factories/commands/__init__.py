@@ -1,5 +1,5 @@
 __all__ = (
-    'MoveCommandFactory',
+    'MoveObjectCommandFactory',
 )
 
-from src.factories.commands.create_move_command import MoveCommandFactory
+from src.factories.commands.create_move_command import MoveObjectCommandFactory

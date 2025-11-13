@@ -1,34 +1,38 @@
 import copy
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock
 
-from src.adapters.move_fuel_consumer_adapter import MoveFuelConsumer
-from src.commands.macro.move_with_fuel_command import MoveWithFuelCommand
 from src.dependencies.ioc import IoC
-from src.factories.commands.create_move_with_fuel_command import MoveWithFuelCommandFactory
-from src.factories.operation_router import OperationToCommandRouter
-from src.services.game_manager import GameManager
 from src.interfaces.base_command import BaseCommand
+from src.interfaces.serializers.uobject_serializer import IGameObjectSerializer
 from src.interfaces.uobject import UObject
 from src.main import app
 from src.models.uobject import DictUObject
 from src.models.vector import Vector
+from src.services.game_service import GameService
 
 
-def get_game_manager() -> GameManager:
+def get_game_service() -> GameService:
     """
-    Получение через IoC-контейнер менеджера игровых сессий.
+    Получение через IoC-контейнер сервиса игровых сессий.
 
     Явно устанавливает скоуп 'infrastructure_scope', чтобы гарантировать,
     что разрешение зависимости происходит в правильном контексте (основной поток).
     :return: Менеджер управления игровых сессий - обработчиков команд
     """
     IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
-    return IoC[GameManager].resolve('Game.QueueManager')
+    return IoC[GameService].resolve('GameService')
+
+
+def get_serializer() -> IGameObjectSerializer:
+    """
+    Получение через IoC-контейнер сериализатора игровых сессий.
+    :return: Класс сериализации/десериализации
+    """
+    IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
+    return IoC[IGameObjectSerializer].resolve('GameObjectSerializer')
 
 
 @pytest.fixture
@@ -71,13 +75,16 @@ def expected_game_objects() -> dict[str, UObject]:
     }
 
 
-def create_game_session(test_client: TestClient) -> str:
+def create_game_session(test_client: TestClient, game_type: str = "test") -> str:
     """
     Создаёт новую игровую сессию через API и возвращает её идентификатор.
     :param test_client: Клиент для обмена сообщений с тестируемым сервером
     :return: Идентификатор игровой сессии
     """
-    response = test_client.post(f'/api/games')
+    response = test_client.post(
+        f'/api/games',
+        json={"game_type": game_type}
+    )
     assert response.status_code == 200
     data = response.json()
     assert 'game_id' in data
@@ -91,68 +98,40 @@ def delete_game_session(test_client: TestClient, game_id: str) -> None:
     :param game_id: Идентификатор игровой сессии
     """
     # Удаляем игровую сессию
-    response = test_client.delete( f'/api/games/{game_id}')
+    response = test_client.delete(f'/api/games/{game_id}')
     assert response.status_code == 200
     data = response.json()
     assert 'status' in data
     assert data['status'] == 'terminated'
 
 
-def init_dependencies(game_id: str, initial_game_objects: dict[str, UObject]) -> None:
+def init_dependencies(
+    test_client: TestClient,
+    game_id: str,
+    initial_game_objects: dict[str, UObject]
+) -> None:
     """
-    Регистрирует тестовые зависимости в скоупе игровой сессии через очередь команд.
+    Регистрирует тестовые зависимости и добавляем тестовые данные в скоупе игровой сессии.
+    :param test_client: Клиент для обмена сообщений с тестируемым сервером
     :param game_id: Идентификатор игровой сессии
     :param initial_game_objects: Входные тестовые данные
     """
-    # Получаем игровую сессию - обработчик команд
-    game_manager: GameManager = get_game_manager()
-    handler = game_manager.get(game_id)
-    # Регистрация зависимостей
-    # -- Хранилище игровых объектов--
-    # Получение всех объектов
-    get_all_object_command = IoC[BaseCommand].resolve(
-        'IoC.Register',
-        'Game.Object.GetAll',
-        lambda *args, **kwargs: initial_game_objects
-    )
-    # Получение объекта по id
-    get_object_command = IoC[BaseCommand].resolve(
-        'IoC.Register',
-        'Game.Object.Get',
-        lambda game_id, *args, **kwargs: initial_game_objects.get(game_id)
-    )
-    # -- Команды --
-    move_command = IoC[BaseCommand].resolve(
-        'IoC.Register',
-        'Command.MoveWithFuel',
-        lambda uobject, *args, **kwargs: MoveWithFuelCommand(MoveFuelConsumer(uobject))
-    )
-    # -- Разрешенные команды через роутер фабрик --
-    allowed_operations = {
-        'movement': MoveWithFuelCommandFactory,
-    }
-    factories = OperationToCommandRouter(allowed_operations)
-    allowed_operations_command = IoC[BaseCommand].resolve(
-        'IoC.Register',
-        'OperationToCommandMap',
-        lambda key, *args, **kwargs: factories.get_factory(key)
-    )
-    # Вспомогательная команда для ожидания выполнения очереди
-    event = threading.Event()
-    mock_command = Mock()
-    mock_command.execute = lambda: event.set()
-    # Добавление команд в очередь
-    commands = [
-        get_all_object_command,
-        get_object_command,
-        move_command,
-        allowed_operations_command,
-        mock_command
-    ]
-    for command in commands:
-        handler.enqueue_command(command)
-    # Ожидаем регистрации всех зависимостей
-    event.wait()
+    serializer = get_serializer()
+    for obj_id, game_object in initial_game_objects.items():
+        dict_object = serializer.serialize(game_object)
+        response = test_client.post(
+            f'/api/games/command',
+            json={
+                "game_id": game_id,
+                "object_id": "__session__",
+                "operation_id": "create_object",
+                "arguments": {
+                    "object_id": obj_id,
+                    "data": dict_object,
+                },
+            }
+        )
+        assert response.status_code == 200
 
 
 def endpoint_worker(
@@ -175,10 +154,9 @@ def endpoint_worker(
     :param initial_game_objects: Входные тестовые данные
     :param expected_game_objects: Ожидаемые тестовые данные
     """
+    serializer = get_serializer()
     # Инициализация игровой сессии
     game_id = create_game_session(test_client)
-    # Регистрируем зависимости в очереди игровой сессии
-    init_dependencies(game_id, initial_game_objects)
 
     # Проверяем статус игровой сессии
     response = test_client.get(f'/api/games/{game_id}')
@@ -191,7 +169,7 @@ def endpoint_worker(
     data = response.json()
     assert len(data['objects']) == len(initial_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data['objects'][key] == initial_game_objects[key].to_dict()
+        assert (data['objects'][key]) == serializer.serialize(initial_game_objects[key])
 
     # Проверяем игровые объекты
     for object_id in initial_game_objects:
@@ -201,7 +179,7 @@ def endpoint_worker(
         response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-        assert data == init_data.to_dict()
+        assert data == serializer.serialize(init_data)
 
         # Проверяем интерпретацию команды
         response = test_client.post(
@@ -224,14 +202,14 @@ def endpoint_worker(
         response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-        assert data == expect_data.to_dict()
+        assert data == serializer.serialize(expect_data)
 
     # Проверяем статус игровой сессии после выполнения команд
     response = test_client.get(f'/api/games/{game_id}/objects')
     data = response.json()
     assert len(data['objects']) == len(expected_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data['objects'][key] == expected_game_objects[key].to_dict()
+        assert data['objects'][key] == serializer.serialize(expected_game_objects[key])
 
     # Завершение игровой сессии
     delete_game_session(test_client, game_id)
@@ -242,10 +220,10 @@ def endpoint_worker(
     [1, 2, 3]
 )
 def test_several_sessions(
-    count_workers: int,
-    test_client: TestClient,
-    initial_game_objects: dict[str, UObject],
-    expected_game_objects: dict[str, UObject],
+        count_workers: int,
+        test_client: TestClient,
+        initial_game_objects: dict[str, UObject],
+        expected_game_objects: dict[str, UObject],
 ):
     """
     Проверяет корректность работы API при параллельной обработке нескольких сессий.

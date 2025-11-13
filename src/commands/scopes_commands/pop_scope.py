@@ -10,12 +10,16 @@ class PopScopeCommand(BaseCommand):
     """
     Удаление текущей области (scope) и установка родительской в качестве активной области
     """
-    def __init__(self, all_scopes: dict[str, Scope], current_scope: ContextVar[Scope | None]):
+    def __init__(self, all_scopes: dict[str, Scope], current_scope: ContextVar[Scope | None], removable_scope: str = None):
         self._all_scopes = all_scopes
         self._current_scope = current_scope
+        self._removable_scope = removable_scope
 
     def execute(self) -> str:
-        scope = self._current_scope.get()
+        if self._removable_scope is None:
+            scope = self._current_scope.get()
+        else:
+            scope = self._all_scopes.get(self._removable_scope)
         if scope.is_default:
             raise exceptions.ForbiddenRemoveRootScopeError('The root scope cannot be removed')
         try:

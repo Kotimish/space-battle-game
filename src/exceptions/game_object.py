@@ -7,3 +7,7 @@ class GameObjectException(BaseGameException):
 
 class ObjectNotFoundError(GameObjectException):
     """Ошибка возникает, когда указанный игровой объект не существует или не найден."""
+
+
+class ObjectAlreadyExistsError(BaseGameException):
+    """Ошибка возникает, когда игровая сессия с указанным идентификатором уже существует."""

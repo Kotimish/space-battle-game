@@ -2,14 +2,15 @@ from typing import Mapping
 
 from src.exceptions.security import SecurityException
 from src.interfaces.operation_router import IOperationRouter
-from src.interfaces.command_factory import ICommandFactory
+from src.interfaces.factories.object_command_factory import IObjectCommandFactory
+
 
 class OperationToCommandRouter(IOperationRouter):
     """
     Роутер для сопоставления идентификаторов операций с классами фабрик команд.
     Обеспечивает безопасную маршрутизацию, разрешая только явно перечисленные операции.
     """
-    def __init__(self, operation_map: Mapping[str, type[ICommandFactory]]):
+    def __init__(self, operation_map: Mapping[str, type[IObjectCommandFactory]]):
         """
         :param operation_map: Белый список разрешённых операций, где ключ — идентификатор операции,
                               а значение — класс фабрики, реализующей ICommandFactory и создающей
@@ -17,7 +18,7 @@ class OperationToCommandRouter(IOperationRouter):
         """
         self._operation_map = operation_map
 
-    def get_factory(self, operation_id: str) -> type[ICommandFactory]:
+    def get_factory(self, operation_id: str) -> type[IObjectCommandFactory]:
         """
         Возвращает класс фабрики для указанной операции.
         :param operation_id: Название операции

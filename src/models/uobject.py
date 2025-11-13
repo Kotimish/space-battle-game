@@ -1,6 +1,6 @@
 from typing import Any
 
-from src.interfaces.serializable import Serializable
+from src.interfaces.serializers.serializable import Serializable
 from src.interfaces.uobject import UObject
 
 # Стандартные типы данных

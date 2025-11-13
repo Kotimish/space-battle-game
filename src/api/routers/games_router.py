@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 
-from src.api.dependencies import get_game_manager
-from src.commands.interpret_command import InterpretCommand
-from src.exceptions.game_manager import GameNotFoundError
-from src.services.game_manager import GameManager
-from src.models.agent_message import AgentMessage
+from src.api.dependencies import get_game_service
+from src.exceptions.game_session import GameNotFoundError
+from src.schemas.create_game_request import CreateGameRequest
+from src.schemas.agent_message import AgentMessage
+from src.services.game_service import GameService
 
 router = APIRouter(
     prefix="/games",
@@ -15,19 +15,17 @@ router = APIRouter(
 @router.post('/command')
 async def accept_agent_command(
     message: AgentMessage,
-    game_manager: GameManager = Depends(get_game_manager)
+    game_service: GameService = Depends(get_game_service)
 ):
     """
     Принимает и ставит в очередь команду от игрового агента для выполнения
     :param message: Сообщение от агента, содержащее идентификатор игровой сессии (`game_id`) и данные команды
-    :param game_manager: Менеджер игровых сессий.
+    :param game_service: Сервис игровых сессий.
     :raises HTTPException: Ошибка постановки команды в очередь.
     :return: Словарь с ключом "status": "accepted", если команда успешно поставлена в очередь.
     """
     try:
-        command_handler = game_manager.get(message.game_id)
-        cmd = InterpretCommand(message=message)
-        command_handler.enqueue_command(cmd)
+        game_service.execute_command(message)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Command failed: {str(e)}")
     else:
@@ -36,7 +34,8 @@ async def accept_agent_command(
 
 @router.post('/')
 async def create_game_session(
-    game_manager: GameManager = Depends(get_game_manager)
+    request: CreateGameRequest,
+    game_service: GameService = Depends(get_game_service)
 ):
     """
     Создание новой изолированной игровой сессии.
@@ -44,29 +43,29 @@ async def create_game_session(
     Инициализирует внутреннее состояние сессии (очередь команд, реестр объектов и т.д.)
     и возвращает уникальный идентификатор, который клиенты используют для взаимодействия
     с этой сессией.
-    :param game_manager: Менеджер игровых сессий.
+    :param request: Информация о типе игровой сессии, определяющей правила игры.
+    :param game_service: Сервис игровых сессий.
     :return: Словарь с ключом "game_id" и строковым представлением UUID сессии.
     """
-    """Создание новой игровой сессии"""
-    game_id = game_manager.create()
+    game_id = game_service.create_game(ruleset=request.game_type)
     return {"game_id": str(game_id)}
 
 
 @router.delete('/{game_id}')
 async def delete_game_session(
     game_id: str,
-    game_manager: GameManager = Depends(get_game_manager)
+    game_service: GameService = Depends(get_game_service)
 ):
     """
     Завершение и освобождение ресурсов указанной игровой сессии
     :param game_id: Идентификатор игровой сессии.
-    :param game_manager: Менеджер игровых сессий.
+    :param game_service: Сервис игровых сессий.
     :return: Словарь с ключом `"status": "terminated"`, подтверждающий завершение.
     :raises HTTPException:
         Код 404, если сессия с указанным "game_id" не найдена;
     """
     try:
-        game_manager.stop_game(game_id)
+        game_service.stop_game(game_id)
     except GameNotFoundError as e:
         raise HTTPException(404, f"Game '{game_id}' not found.")
     return {"status": "terminated"}
@@ -74,19 +73,19 @@ async def delete_game_session(
 
 @router.get('/')
 async def get_game_info(
-    game_manager: GameManager = Depends(get_game_manager),
+    game_service: GameService = Depends(get_game_service)
 ):
     """
     Возвращает информацию обо всех игровых сессиях.
 
-    :param game_manager: Менеджер игровых сессий.
+    :param game_service: Сервис игровых сессий.
     :return: Словарь в формате {"games": {<game_id>: <game_info>, ...}},
              где <game_id> — уникальный идентификатор сессии,
              а <game_info> — соответствующие данные сессии.
     :raises HTTPException:
         Код 504, если обработчик не вернул результат в течение 5 секунд.
     """
-    games = game_manager.get_all()
+    games = game_service.get_list_all_games()
     return {
         "games":{
             "id": game
@@ -98,13 +97,13 @@ async def get_game_info(
 @router.get('/{game_id}')
 async def get_game_info(
     game_id: str,
-    game_manager: GameManager = Depends(get_game_manager),
+    game_service: GameService = Depends(get_game_service)
 ):
     """
     Возвращает информацию об игровой сессии по её идентификатору.
 
     :param game_id: Идентификатор игровой сессии.
-    :param game_manager: Менеджер игровых сессий.
+    :param game_service: Сервис игровых сессий.
     :return: Словарь с ключами:
              — "id": идентификатор сессии (str),
              — "status": текущий статус сессии (например, "active").
@@ -113,11 +112,7 @@ async def get_game_info(
         Код 404, если сессия с указанным "game_id" не найдена.
     """
     try:
-        command_handler = game_manager.get(game_id)
+        status = game_service.get_game_state(game_id)
     except GameNotFoundError as e:
         raise HTTPException(404, f"Game '{game_id}' not found.")
-    return {
-        "id": game_id,
-        "status": "active"
-        # TODO дополнить другими данными (status, number_of_players,...)
-    }
+    return status

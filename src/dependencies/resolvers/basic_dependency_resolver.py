@@ -22,4 +22,4 @@ class BasicDependencyResolver(IDependencyResolver):
                 return strategy(*args, **kwargs)
             # Если стратегия не найдена, то ищем родителя
             scope = scope.parent
-        raise exceptions.DependencyNotFoundError(f'Dependency {dependency_name} not registered')
+        raise exceptions.DependencyNotFoundError(f'Dependency \'{dependency_name}\' not registered')
