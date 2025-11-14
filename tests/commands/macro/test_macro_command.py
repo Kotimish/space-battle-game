@@ -1,10 +1,10 @@
 import pytest
 
-from src.commands.fuel_command import CheckFuelCommand, BurnFuelCommand
-from src.commands.macro.macro_command import MacroCommand
-from src.commands.move import MoveCommand
-from src.exceptions.command import CommandException
-from src.models.vector import Vector
+from src.application.commands.fuel_command import CheckFuelCommand, BurnFuelCommand
+from src.application.commands.macro.macro_command import MacroCommand
+from src.application.commands.move import MoveCommand
+from src.domain.exceptions.command import MacroCommandException
+from src.domain.models.vector import Vector
 from tests.factories import make_movable_object, make_fuel_consumer_object
 
 
@@ -52,5 +52,5 @@ def test_macro_command_with_invalid_params(start_position: Vector, velocity: Vec
         BurnFuelCommand(fuel_consumer_object)
     ]
     macro_command = MacroCommand(commands)
-    with pytest.raises(CommandException) as e:
+    with pytest.raises(MacroCommandException) as e:
         macro_command.execute()

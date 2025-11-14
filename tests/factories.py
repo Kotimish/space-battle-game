@@ -1,11 +1,11 @@
-from src.adapters.fuel_consumer_adapter import FuelConsumerAdapter
-from src.adapters.movable_adapter import MovableObjectAdapter
-from src.adapters.movable_with_velocity_adapter import MovableWithVelocityAdapter
-from src.adapters.move_fuel_consumer_adapter import MoveFuelConsumer
-from src.adapters.rotatable_adapter import RotatableObjectAdapter
-from src.models.angle import Angle
-from src.models.vector import Vector
-from src.models.uobject import DictUObject
+from src.infrastructure.adapters.fuel_consumer_adapter import FuelConsumerAdapter
+from src.infrastructure.adapters.movable_adapter import MovableObjectAdapter
+from src.infrastructure.adapters.movable_with_velocity_adapter import MovableWithVelocityAdapter
+from src.infrastructure.adapters.move_fuel_consumer_adapter import MoveFuelConsumer
+from src.infrastructure.adapters.rotatable_adapter import RotatableObjectAdapter
+from src.domain.models.angle import Angle
+from src.domain.models.vector import Vector
+from src.domain.models.uobject import DictUObject
 
 
 def make_rotatable_object(angle: Angle, angular_velocity: Angle) -> RotatableObjectAdapter:

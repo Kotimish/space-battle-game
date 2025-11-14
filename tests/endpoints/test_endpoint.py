@@ -4,14 +4,14 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from fastapi.testclient import TestClient
 
-from src.dependencies.ioc import IoC
-from src.interfaces.base_command import BaseCommand
-from src.interfaces.serializers.uobject_serializer import IGameObjectSerializer
-from src.interfaces.uobject import UObject
-from src.main import app
-from src.models.uobject import DictUObject
-from src.models.vector import Vector
-from src.services.game_service import GameService
+from src.application.services.game_service import GameService
+from src.infrastructure.dependencies.ioc import IoC
+from src.domain.interfaces.base_command import BaseCommand
+from src.domain.interfaces.serializers.uobject_serializer import IGameObjectSerializer
+from src.domain.interfaces.uobject import UObject
+from src.domain.models.uobject import DictUObject
+from src.domain.models.vector import Vector
+from src.presentation.main import app
 
 
 def get_game_service() -> GameService:

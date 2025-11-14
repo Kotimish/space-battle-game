@@ -1,9 +1,9 @@
-from src.commands.move import MoveCommand
-from src.commands.repeat import RepeatCommand, SecondRepeatCommand
-from src.exceptions.move import UnchangeablePositionError
-from src.handlers.command_handler import CommandHandler
-from src.handlers.exception_handler import ExceptionHandler
-from src.models.vector import Vector
+from src.application.commands.move import MoveCommand
+from src.application.commands.repeat import RepeatCommand, SecondRepeatCommand
+from src.domain.exceptions.move import UnchangeablePositionError
+from src.domain.models.vector import Vector
+from src.infrastructure.handlers.command_handler import CommandHandler
+from src.infrastructure.handlers.exception_handler import ExceptionHandler
 from tests.factories import make_movable_object
 
 

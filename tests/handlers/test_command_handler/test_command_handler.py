@@ -1,7 +1,7 @@
-from src.commands.control.start_command_handler import StartCommandHandler
-from src.commands.move import MoveCommand
-from src.handlers.command_handler import CommandHandler
-from src.models.vector import Vector
+from src.application.commands.move import MoveCommand
+from src.domain.models.vector import Vector
+from src.infrastructure.commands.control.start_command_handler import StartCommandHandler
+from src.infrastructure.handlers.command_handler import CommandHandler
 from tests.factories import make_movable_object
 
 

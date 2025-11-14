@@ -1,8 +1,8 @@
 import pytest
 
-from src.commands.move import MoveCommand
-from src.exceptions.move import UndefinedPositionError, UndefinedVelocityError, UnchangeablePositionError
-from src.models.vector import Vector
+from src.application.commands.move import MoveCommand
+from src.domain.exceptions.move import UndefinedPositionError, UndefinedVelocityError, UnchangeablePositionError
+from src.domain.models.vector import Vector
 from tests.factories import make_movable_object
 
 

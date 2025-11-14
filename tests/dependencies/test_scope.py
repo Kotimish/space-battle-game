@@ -1,7 +1,7 @@
 import pytest
 
-import src.exceptions.ioc as exceptions
-from src.dependencies.ioc import IoC
+import src.infrastructure.exceptions.ioc as exceptions
+from src.infrastructure.dependencies.ioc import IoC
 
 
 def test_root_scope():

@@ -1,7 +1,7 @@
-from src.commands.log_exception_command import LogExceptionCommand
-from src.commands.move import MoveCommand
-from src.exceptions.move import UnchangeablePositionError
-from src.models.vector import Vector
+from src.application.commands.log_exception_command import LogExceptionCommand
+from src.application.commands.move import MoveCommand
+from src.domain.exceptions.move import UnchangeablePositionError
+from src.domain.models.vector import Vector
 from tests.factories import make_movable_object
 
 
