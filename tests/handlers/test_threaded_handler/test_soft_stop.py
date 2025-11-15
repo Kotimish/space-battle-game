@@ -9,7 +9,7 @@ from src.infrastructure.handlers.threaded_command_handler import ThreadedCommand
 from tests.factories import make_movable_object
 
 
-def test_hard_stop(event_loop: ThreadedCommandHandler) -> None:
+def test_soft_stop(event_loop: ThreadedCommandHandler) -> None:
     """
     Тестирование мягкой остановки выполнения event-loop в потоке.
     После выполнения SoftStopCommand будут выполнены все команды до завершения очереди

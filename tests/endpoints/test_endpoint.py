@@ -1,84 +1,26 @@
-import copy
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from fastapi.testclient import TestClient
 
-from src.application.services.game_service import GameService
-from src.infrastructure.dependencies.ioc import IoC
 from src.domain.interfaces.base_command import BaseCommand
-from src.domain.interfaces.serializers.uobject_serializer import IGameObjectSerializer
 from src.domain.interfaces.uobject import UObject
-from src.domain.models.uobject import DictUObject
-from src.domain.models.vector import Vector
-from src.presentation.main import app
+from src.infrastructure.dependencies.ioc import IoC
 
 
-def get_game_service() -> GameService:
+def set_infrastructure_scope():
     """
-    Получение через IoC-контейнер сервиса игровых сессий.
-
     Явно устанавливает скоуп 'infrastructure_scope', чтобы гарантировать,
     что разрешение зависимости происходит в правильном контексте (основной поток).
-    :return: Менеджер управления игровых сессий - обработчиков команд
     """
     IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
-    return IoC[GameService].resolve('GameService')
-
-
-def get_serializer() -> IGameObjectSerializer:
-    """
-    Получение через IoC-контейнер сериализатора игровых сессий.
-    :return: Класс сериализации/десериализации
-    """
-    IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
-    return IoC[IGameObjectSerializer].resolve('GameObjectSerializer')
-
-
-@pytest.fixture
-def test_client():
-    """
-    Тестовый клиент для обмена сообщений с тестируемым сервером.
-    По умолчанию использует lifespan веб-фреймворка FastApi.
-    """
-    with TestClient(app) as client:
-        yield client
-
-
-@pytest.fixture
-def initial_game_objects() -> dict[str, UObject]:
-    """
-    Предоставляет начальное состояние игровых объектов для тестов.
-    """
-    return {
-        'object_0': DictUObject({
-            'position': Vector(0, 0),
-            'velocity': Vector(10, 0),
-            'fuel_level': 100,
-            'fuel_consumption': 10,
-        })
-    }
-
-
-@pytest.fixture
-def expected_game_objects() -> dict[str, UObject]:
-    """
-    Предоставляет ожидаемое состояние игровых объектов после выполнения команды.
-    """
-    return {
-        'object_0': DictUObject({
-            'position': Vector(10, 0),
-            'velocity': Vector(10, 0),
-            'fuel_level': 0,
-            'fuel_consumption': 10,
-        })
-    }
 
 
 def create_game_session(test_client: TestClient, game_type: str = "test") -> str:
     """
     Создаёт новую игровую сессию через API и возвращает её идентификатор.
     :param test_client: Клиент для обмена сообщений с тестируемым сервером
+    :param game_type: Тип игры
     :return: Идентификатор игровой сессии
     """
     response = test_client.post(
@@ -105,35 +47,6 @@ def delete_game_session(test_client: TestClient, game_id: str) -> None:
     assert data['status'] == 'terminated'
 
 
-def init_dependencies(
-    test_client: TestClient,
-    game_id: str,
-    initial_game_objects: dict[str, UObject]
-) -> None:
-    """
-    Регистрирует тестовые зависимости и добавляем тестовые данные в скоупе игровой сессии.
-    :param test_client: Клиент для обмена сообщений с тестируемым сервером
-    :param game_id: Идентификатор игровой сессии
-    :param initial_game_objects: Входные тестовые данные
-    """
-    serializer = get_serializer()
-    for obj_id, game_object in initial_game_objects.items():
-        dict_object = serializer.serialize(game_object)
-        response = test_client.post(
-            f'/api/games/command',
-            json={
-                "game_id": game_id,
-                "object_id": "__session__",
-                "operation_id": "create_object",
-                "arguments": {
-                    "object_id": obj_id,
-                    "data": dict_object,
-                },
-            }
-        )
-        assert response.status_code == 200
-
-
 def endpoint_worker(
         test_client: TestClient,
         initial_game_objects: dict[str, UObject],
@@ -154,7 +67,8 @@ def endpoint_worker(
     :param initial_game_objects: Входные тестовые данные
     :param expected_game_objects: Ожидаемые тестовые данные
     """
-    serializer = get_serializer()
+    # Настройка скоупа
+    set_infrastructure_scope()
     # Инициализация игровой сессии
     game_id = create_game_session(test_client)
 
@@ -169,7 +83,7 @@ def endpoint_worker(
     data = response.json()
     assert len(data['objects']) == len(initial_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert (data['objects'][key]) == serializer.serialize(initial_game_objects[key])
+        assert (data['objects'][key]) == initial_game_objects[key]
 
     # Проверяем игровые объекты
     for object_id in initial_game_objects:
@@ -179,7 +93,7 @@ def endpoint_worker(
         response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-        assert data == serializer.serialize(init_data)
+        assert data == init_data
 
         # Проверяем интерпретацию команды
         response = test_client.post(
@@ -202,14 +116,14 @@ def endpoint_worker(
         response = test_client.get(f'/api/games/{game_id}/objects/{object_id}')
         assert response.status_code == 200
         data = response.json()
-        assert data == serializer.serialize(expect_data)
+        assert data == expect_data
 
     # Проверяем статус игровой сессии после выполнения команд
     response = test_client.get(f'/api/games/{game_id}/objects')
     data = response.json()
     assert len(data['objects']) == len(expected_game_objects.keys())
     for key in initial_game_objects.keys():
-        assert data['objects'][key] == serializer.serialize(expected_game_objects[key])
+        assert data['objects'][key] == expected_game_objects[key]
 
     # Завершение игровой сессии
     delete_game_session(test_client, game_id)
@@ -243,7 +157,7 @@ def test_several_sessions(
                 endpoint_worker,
                 test_client,
                 # Полная копия для защиты от изменений
-                copy.deepcopy(initial_game_objects),
+                initial_game_objects,
                 expected_game_objects
             )
             for _ in range(count_workers)
