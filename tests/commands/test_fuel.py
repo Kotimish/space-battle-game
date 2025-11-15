@@ -3,7 +3,7 @@ import pytest
 import src.application.commands.fuel_command as commands
 import src.domain.exceptions.fuel_command as exceptions
 from src.domain.exceptions.command import CommandException
-from tests.factories import make_fuel_consumer_object
+from tests.helpers.factories import make_fuel_consumer_object
 
 
 @pytest.mark.parametrize(

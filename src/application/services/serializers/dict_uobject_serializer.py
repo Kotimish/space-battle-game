@@ -62,7 +62,7 @@ class DictUObjectSerializer(IGameObjectSerializer):
                 type_name = value["__type__"]
                 data = value["__data__"]
                 cls = self._get_class_by_name(type_name)
-                return cls.serialize(data)
+                return cls.deserialize(data)
             else:
                 return self._deserialize_dict(value)
         elif isinstance(value, list):

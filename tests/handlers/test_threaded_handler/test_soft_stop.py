@@ -6,7 +6,7 @@ from src.domain.models.vector import Vector
 from src.infrastructure.commands.control.soft_stop_command import SoftStopCommand
 from src.infrastructure.commands.control.start_command_handler import StartCommandHandler
 from src.infrastructure.handlers.threaded_command_handler import ThreadedCommandHandler
-from tests.factories import make_movable_object
+from tests.helpers.factories import make_movable_object
 
 
 def test_soft_stop(event_loop: ThreadedCommandHandler) -> None:

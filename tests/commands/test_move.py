@@ -3,7 +3,7 @@ import pytest
 from src.application.commands.move import MoveCommand
 from src.domain.exceptions.move import UndefinedPositionError, UndefinedVelocityError, UnchangeablePositionError
 from src.domain.models.vector import Vector
-from tests.factories import make_movable_object
+from tests.helpers.factories import make_movable_object
 
 
 def test_move_with_valid_params():

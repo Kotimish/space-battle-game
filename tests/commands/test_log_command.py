@@ -2,7 +2,7 @@ from src.application.commands.log_exception_command import LogExceptionCommand
 from src.application.commands.move import MoveCommand
 from src.domain.exceptions.move import UnchangeablePositionError
 from src.domain.models.vector import Vector
-from tests.factories import make_movable_object
+from tests.helpers.factories import make_movable_object
 
 
 def test_log_exception_command(caplog):

@@ -4,7 +4,7 @@ from src.domain.exceptions.move import UnchangeablePositionError
 from src.domain.models.vector import Vector
 from src.infrastructure.handlers.command_handler import CommandHandler
 from src.infrastructure.handlers.exception_handler import ExceptionHandler
-from tests.factories import make_movable_object
+from tests.helpers.factories import make_movable_object
 
 
 def test_success_repeat_command():

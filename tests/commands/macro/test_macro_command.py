@@ -5,7 +5,7 @@ from src.application.commands.macro.macro_command import MacroCommand
 from src.application.commands.move import MoveCommand
 from src.domain.exceptions.command import MacroCommandException
 from src.domain.models.vector import Vector
-from tests.factories import make_movable_object, make_fuel_consumer_object
+from tests.helpers.factories import make_movable_object, make_fuel_consumer_object
 
 
 def test_macro_command_with_valid_params():

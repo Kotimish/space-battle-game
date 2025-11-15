@@ -3,7 +3,7 @@ import pytest
 from src.application.commands.change_velocity_command import ChangeVelocityCommand
 from src.domain.models.angle import Angle
 from src.domain.models.vector import Vector
-from tests.factories import make_rotatable_object, make_movable_with_velocity_object
+from tests.helpers.factories import make_rotatable_object, make_movable_with_velocity_object
 
 
 @pytest.mark.parametrize(

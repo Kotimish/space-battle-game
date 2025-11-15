@@ -3,7 +3,7 @@ import pytest
 from src.application.commands.macro.move_with_fuel_command import MoveWithFuelCommand
 from src.domain.exceptions.command import MacroCommandException
 from src.domain.models.vector import Vector
-from tests.factories import make_movable_fuel_consumer
+from tests.helpers.factories import make_movable_fuel_consumer
 
 
 def test_macro_command_with_valid_params():

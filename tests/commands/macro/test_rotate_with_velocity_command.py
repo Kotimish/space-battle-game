@@ -4,7 +4,7 @@ from src.application.commands.macro.rotate_with_velocity import RotateWithVeloci
 from src.domain.models.angle import Angle
 from src.domain.models.vector import Vector
 from src.domain.exceptions.command import MacroCommandException
-from tests.factories import make_rotatable_object, make_movable_with_velocity_object
+from tests.helpers.factories import make_rotatable_object, make_movable_with_velocity_object
 
 
 @pytest.mark.parametrize(
