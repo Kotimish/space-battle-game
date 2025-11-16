@@ -1,15 +1,15 @@
 import threading
 from unittest.mock import Mock
 
-from src.commands.control.soft_stop_command import SoftStopCommand
-from src.commands.control.start_command_handler import StartCommandHandler
-from src.commands.move import MoveCommand
-from src.handlers.threaded_command_handler import ThreadedCommandHandler
-from src.models.vector import Vector
-from tests.factories import make_movable_object
+from src.application.commands.move import MoveCommand
+from src.domain.models.vector import Vector
+from src.infrastructure.commands.control.soft_stop_command import SoftStopCommand
+from src.infrastructure.commands.control.start_command_handler import StartCommandHandler
+from src.infrastructure.handlers.threaded_command_handler import ThreadedCommandHandler
+from tests.helpers.factories import make_movable_object
 
 
-def test_hard_stop(event_loop: ThreadedCommandHandler) -> None:
+def test_soft_stop(event_loop: ThreadedCommandHandler) -> None:
     """
     Тестирование мягкой остановки выполнения event-loop в потоке.
     После выполнения SoftStopCommand будут выполнены все команды до завершения очереди

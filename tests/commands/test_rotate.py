@@ -1,9 +1,9 @@
 import pytest
 
-from src.commands.rotate import RotateCommand
-from src.exceptions.rotate import UndefinedAngleError, UndefinedAngularVelocityError, UnchangeableAngleError
-from src.models.angle import Angle
-from tests.factories import make_rotatable_object
+from src.application.commands.rotate import RotateCommand
+from src.domain.exceptions.rotate import UndefinedAngleError, UndefinedAngularVelocityError, UnchangeableAngleError
+from src.domain.models.angle import Angle
+from tests.helpers.factories import make_rotatable_object
 
 
 def test_rotate_with_valid_params():

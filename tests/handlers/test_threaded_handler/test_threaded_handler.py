@@ -1,9 +1,9 @@
 import threading
 from unittest.mock import Mock
 
-from src.commands.control.hard_stop_command import HardStopCommand
-from src.commands.control.start_command_handler import StartCommandHandler
-from src.handlers.threaded_command_handler import ThreadedCommandHandler
+from src.infrastructure.commands.control.hard_stop_command import HardStopCommand
+from src.infrastructure.commands.control.start_command_handler import StartCommandHandler
+from src.infrastructure.handlers.threaded_command_handler import ThreadedCommandHandler
 
 
 def test_threaded_command_handler(event_loop: ThreadedCommandHandler):

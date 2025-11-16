@@ -1,9 +1,9 @@
 import pytest
 
-from src.commands.macro.move_with_fuel_command import MoveWithFuelCommand
-from src.exceptions.command import CommandException
-from src.models.vector import Vector
-from tests.factories import make_movable_fuel_consumer
+from src.application.commands.macro.move_with_fuel_command import MoveWithFuelCommand
+from src.domain.exceptions.command import MacroCommandException
+from src.domain.models.vector import Vector
+from tests.helpers.factories import make_movable_fuel_consumer
 
 
 def test_macro_command_with_valid_params():
@@ -34,5 +34,5 @@ def test_macro_command_with_invalid_params():
 
     movable_fuel_consumer = make_movable_fuel_consumer(start_position, velocity, fuel_level, fuel_consumption)
     command = MoveWithFuelCommand(movable_fuel_consumer)
-    with pytest.raises(CommandException) as e:
+    with pytest.raises(MacroCommandException) as e:
         command.execute()

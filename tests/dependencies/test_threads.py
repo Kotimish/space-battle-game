@@ -1,9 +1,8 @@
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from src.dependencies.ioc import IoC
+from src.infrastructure.dependencies.ioc import IoC
 
 
 @pytest.mark.parametrize(

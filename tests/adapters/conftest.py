@@ -1,10 +1,10 @@
 import pytest
 
-from src.factories.adaptor_factory import AdapterFactory
-from src.commands.ioc_commands.init_container import InitContainerCommand
-from src.commands.ioc_commands.reset_container import ResetContainerCommand
-from src.dependencies.ioc import IoC
-from src.interfaces.base_command import BaseCommand
+from src.infrastructure.factories.adaptor_factory import AdapterFactory
+from src.infrastructure.commands.ioc_commands.init_container import InitContainerCommand
+from src.infrastructure.commands.ioc_commands.reset_container import ResetContainerCommand
+from src.infrastructure.dependencies.ioc import IoC
+from src.domain.interfaces.base_command import BaseCommand
 
 
 @pytest.fixture(autouse=True)

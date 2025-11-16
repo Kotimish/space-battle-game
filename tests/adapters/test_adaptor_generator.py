@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Type
 
-from src.factories.adaptor_factory import AdapterFactory
-from src.dependencies.ioc import IoC
-from src.interfaces.base_command import BaseCommand
-from src.interfaces.uobject import UObject
-from src.models.uobject import DictUObject
+from src.infrastructure.factories.adaptor_factory import AdapterFactory
+from src.infrastructure.dependencies.ioc import IoC
+from src.domain.interfaces.base_command import BaseCommand
+from src.domain.interfaces.uobject import UObject
+from src.domain.models.uobject import DictUObject
 
 
 class ITest(ABC):
