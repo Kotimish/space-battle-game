@@ -1,4 +1,3 @@
-# src/interfaces/operation_router.py
 from abc import ABC, abstractmethod
 from src.domain.interfaces.factories.object_command_factory import IObjectCommandFactory
 

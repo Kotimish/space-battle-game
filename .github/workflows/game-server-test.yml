@@ -1,5 +1,4 @@
-name: CI python test
-
+name: CI python test game-server
 
 on:
   push:
@@ -20,14 +19,17 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
+        working-directory: apps/game-server
         uses: py-actions/py-dependency-install@v4
         with:
           path: "requirements.txt"
 
       - name: Install dev-dependencies
+        working-directory: apps/game-server
         uses: py-actions/py-dependency-install@v4
         with:
           path: "requirements-dev.txt"
 
       - name: Run tests
+        working-directory: apps/game-server
         run: pytest
