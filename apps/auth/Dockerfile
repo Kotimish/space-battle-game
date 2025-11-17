@@ -21,6 +21,9 @@ COPY src/ ./src/
 # Копирует файл окружения
 COPY .env.default .env
 
+# Создаем папку для ключей
+RUN mkdir /keys
+
 # Указываем порт
 EXPOSE 8001
 
