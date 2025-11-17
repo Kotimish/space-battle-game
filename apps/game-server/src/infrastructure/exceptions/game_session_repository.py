@@ -1,4 +1,4 @@
-from src.domain.exceptions.base_exception import BaseGameException # Предполагаем базовый класс
+from src.domain.exceptions.base_exception import BaseGameException
 
 
 class GameSessionRepositoryException(BaseGameException):

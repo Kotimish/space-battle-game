@@ -2,8 +2,8 @@
 FROM python:3.12-slim
 
 # Устанавливаем переменные окружения
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -17,6 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем исходный код приложения
 COPY src/ ./src/
+
+# Копирует файл окружения
+COPY .env.default .env
 
 # Указываем порт
 EXPOSE 8000

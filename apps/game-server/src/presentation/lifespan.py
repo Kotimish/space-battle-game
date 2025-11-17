@@ -2,58 +2,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.application.services.game_service import GameService
-from src.application.services.ruleset_resolver import RulesetResolver
-from src.application.services.serializers.dict_uobject_serializer import DictUObjectSerializer
-from src.application.services.serializers.type_registry import TypeRegistry
 from src.domain.interfaces.base_command import BaseCommand
-from src.domain.models.angle import Angle
-from src.domain.models.vector import Vector
 from src.infrastructure.commands.ioc_commands.init_container import InitContainerCommand
 from src.infrastructure.commands.ioc_commands.reset_container import ResetContainerCommand
 from src.infrastructure.dependencies.ioc import IoC
-from src.infrastructure.executors.command_executor import CommandExecutor
-from src.infrastructure.factories.command_handler.threaded_command_handler_factory import ThreadedCommandHandlerFactory
-from src.infrastructure.factories.game_session_factory import GameSessionFactory
-from src.infrastructure.repositories.game_session_repository import InMemoryGameSessionRepository
-from src.infrastructure.rules import DefaultRuleset, TestRuleset
-
-
-def setup_game_service() -> GameService:
-    """
-    Инициализирует менеджер игровых сессий и регистрирует его в IoC-контейнере.
-    """
-    # Создание репозитория
-    session_repository = InMemoryGameSessionRepository()
-    # Создание обработчика очереди команд
-    command_handler_factory = ThreadedCommandHandlerFactory()
-    # Создание разрешителя правил
-    rulesets = {
-        "default": DefaultRuleset(),
-        "test": TestRuleset(),
-    }
-    ruleset_resolver = RulesetResolver(rulesets)
-    command_executor = CommandExecutor(session_repository, command_handler_factory, ruleset_resolver)
-    session_factory = GameSessionFactory()
-    # Создание основного сервис для работы с игровой сессией
-    game_service = GameService(command_executor, session_repository, session_factory)
-
-    # Регистрация сериализуемых типов
-    type_registry = TypeRegistry()
-    type_registry.register("Vector", Vector)
-    type_registry.register("Angle", Angle)
-    serializer = DictUObjectSerializer(type_registry.get_registry())
-
-    # --- Регистрация зависимостей ---
-    # Регистрация репозитория
-    IoC[BaseCommand].resolve('IoC.Register', 'GameSessionRepository', lambda: session_repository).execute()
-    # Регистрация менеджера игровых сессий в IoC
-    IoC[BaseCommand].resolve('IoC.Register', 'GameService', lambda: game_service).execute()
-    # Регистрация сериализатора
-    IoC[BaseCommand].resolve('IoC.Register', 'GameObjectSerializer', lambda: serializer).execute()
-    # ---
-
-    return game_service
+from src.infrastructure.setup.setup_game_service import setup_game_service
+from src.infrastructure.setup.setup_jwt_service import setup_jwt_service
+from src.infrastructure.setup.setup_serializer import setup_serializer
 
 
 @asynccontextmanager
@@ -79,9 +34,24 @@ async def lifespan(app: FastAPI):
     IoC[BaseCommand].resolve('IoC.Scope.Create', scope_name).execute()
     IoC[BaseCommand].resolve('IoC.Scope.Set', scope_name).execute()
 
-    # Регистрация GameManager
+    # Настройка GameManager
     game_service = setup_game_service()
+    # Настройка сервиса сериализатора
+    serializer = setup_serializer()
+    # Настройка сервиса JWT
+    jwt_service = setup_jwt_service()
+
+    # --- Регистрация зависимостей ---
+    # Регистрация менеджера игровых сессий в IoC
+    IoC[BaseCommand].resolve('IoC.Register', 'GameService', lambda: game_service).execute()
+    # Регистрация сериализатора
+    IoC[BaseCommand].resolve('IoC.Register', 'GameObjectSerializer', lambda: serializer).execute()
+    # Регистрация сервиса JWT
+    IoC[BaseCommand].resolve('IoC.Register', 'JWTService', lambda: jwt_service).execute()
+    # -------
+
     yield
+
     # Остановка всех игровых сессий
     game_service.stop_all_game()
     # Сброс скоупов
