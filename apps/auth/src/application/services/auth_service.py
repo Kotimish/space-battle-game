@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from src.application.interfaces.jwt_service import IJWTService
 from src.domain.interfaces.factories.auth_game_session_factory import IAuthGameSessionFactory
 from src.domain.interfaces.repositories.auth_game_session_repository import IAuthGameSessionRepository
+from src.domain.models.game_session import AuthGameSession
 from src.infrastructure.config.settings import settings
 
 
@@ -17,10 +18,10 @@ class AuthService:
         self._factory = session_factory
         self._jwt = jwt_service
 
-    def create_game(self, participants: list[str]):
-        session = self._factory.create(participants)
+    def create_game(self, organizer_id: str, participants: list[str]) -> AuthGameSession:
+        session = self._factory.create(organizer_id, participants)
         self._repository.create(session)
-        return session.game_id
+        return session
 
     def issue_token(self, game_id: str, user_id: str) -> str:
         session = self._repository.get_by_id(game_id)

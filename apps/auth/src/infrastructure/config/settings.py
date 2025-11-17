@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # auth/src/infrastructure/config/settings.py
@@ -9,9 +9,9 @@ BASE_DIR = Path(__file__).resolve().parents[3]
 
 
 class JwtConfig(BaseModel):
-    """Настройки для JWT (аутентификация и токены)."""
-    secret: SecretStr
-    algorithm: str = "HS256"
+    """Настройки для JWT (путь к приватному ключу и алгоритм)."""
+    private_key_path: Path
+    algorithm: str = "RS256"
     access_token_expire_minutes: int = 60
 
 
