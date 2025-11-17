@@ -3,5 +3,15 @@ services:
     build:
       context: ./apps/game-server
       dockerfile: Dockerfile
+    volumes:
+      - ./keys/public.pem:/keys/public.pem:ro
     ports:
       - "8000:8000"
+  auth:
+    build:
+      context: ./apps/auth
+      dockerfile: Dockerfile
+    volumes:
+      - ./keys/private.pem:/keys/private.pem:ro
+    ports:
+      - "8001:8000"
