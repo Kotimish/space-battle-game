@@ -8,6 +8,7 @@ from src.infrastructure.commands.ioc_commands.reset_container import ResetContai
 from src.infrastructure.dependencies.ioc import IoC
 from src.infrastructure.setup.setup_game_service import setup_game_service
 from src.infrastructure.setup.setup_jwt_service import setup_jwt_service
+from src.infrastructure.setup.setup_logging import setup_logging
 from src.infrastructure.setup.setup_serializer import setup_serializer
 
 
@@ -40,6 +41,8 @@ async def lifespan(app: FastAPI):
     serializer = setup_serializer()
     # Настройка сервиса JWT
     jwt_service = setup_jwt_service()
+    # Настройка логгирования
+    # setup_logging()
 
     # --- Регистрация зависимостей ---
     # Регистрация менеджера игровых сессий в IoC
