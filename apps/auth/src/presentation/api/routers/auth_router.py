@@ -23,10 +23,14 @@ async def issue_token(
     :return: {"access_token": "...", "token_type": "bearer"}
     """
     try:
-        token = auth_service.issue_token(game_id=request.game_id, user_id=request.user_id)
+        token, expires_at = auth_service.issue_token(game_id=request.game_id, user_id=request.user_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
 
-    return TokenResponse(access_token=token)
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_at=expires_at
+    )

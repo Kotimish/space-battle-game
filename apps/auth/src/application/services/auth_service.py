@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Tuple
 
 from src.application.interfaces.jwt_service import IJWTService
 from src.domain.interfaces.factories.auth_game_session_factory import IAuthGameSessionFactory
@@ -23,15 +24,21 @@ class AuthService:
         self._repository.create(session)
         return session
 
-    def issue_token(self, game_id: str, user_id: str) -> str:
+    def issue_token(self, game_id: str, user_id: str) -> Tuple[str, datetime]:
         session = self._repository.get_by_id(game_id)
         if not session:
             raise ValueError("Game not found")
         if user_id not in session.participants:
             raise PermissionError("User is not a participant")
+
+        # Рассчитываем время истечения
+        expires_delta = timedelta(minutes=settings.jwt.access_token_expire_minutes)
+        expires_at = datetime.now(timezone.utc) + expires_delta
+
         payload = {
             "sub": user_id,
             "game_id": game_id,
-            "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.jwt.access_token_expire_minutes)
+            "exp": expires_at
         }
-        return self._jwt.encode(payload)
+        token = self._jwt.encode(payload)
+        return token, expires_at

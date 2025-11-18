@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class TokenResponse(BaseModel):
-    game_id: str
-    user_id: str
     access_token: str
+    token_type: str
     expires_at: datetime
