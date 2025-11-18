@@ -2,6 +2,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.presentation.app import app
+from tests.helpers.jwt_utils import create_test_token
+
+
+@pytest.fixture
+def valid_token_for_game(game_id: str) -> str:
+    return create_test_token(game_id=game_id, user_id="user_0")
 
 
 @pytest.fixture

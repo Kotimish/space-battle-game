@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from src.domain.interfaces.base_command import BaseCommand
 from src.domain.interfaces.uobject import UObject
 from src.infrastructure.dependencies.ioc import IoC
+from tests.helpers.jwt_utils import create_test_token
 
 
 def set_infrastructure_scope():
@@ -72,6 +73,9 @@ def endpoint_worker(
     # Инициализация игровой сессии
     game_id = create_game_session(test_client)
 
+    # Генерируем токен для этой сессии
+    token = create_test_token(game_id=game_id, user_id="user_0")
+
     # Проверяем статус игровой сессии
     response = test_client.get(f'/api/games/{game_id}')
     assert response.status_code == 200
@@ -105,7 +109,8 @@ def endpoint_worker(
                 "arguments": {
                     'velocity': {"x": 10, "y": 0},
                 },
-            }
+            },
+            headers={"Authorization": f"Bearer {token}"}
         )
         assert response.status_code == 200
         data = response.json()
