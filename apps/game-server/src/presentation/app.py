@@ -1,0 +1,24 @@
+from fastapi import FastAPI
+
+from src.infrastructure.middleware.auth_middleware import AuthMiddleware
+from src.infrastructure.middleware.logging_middleware import LoggingMiddleware
+from src.presentation.api import router as api_router
+from src.presentation.lifespan import lifespan
+from src.presentation.middleware import MiddlewareOrchestrator
+
+app = FastAPI(lifespan=lifespan)
+
+# Регистрация роутеров
+app.include_router(api_router)
+
+# Регистрация middleware
+middlewares = [
+    LoggingMiddleware(),
+    AuthMiddleware(protected_paths=[
+        # Создание игровых сессий
+        ("/api/games/", {"POST"}),
+        # Отправка команд
+        ("/api/games/command", {"POST"}),
+    ]),
+]
+app.middleware("http")(MiddlewareOrchestrator(middlewares))

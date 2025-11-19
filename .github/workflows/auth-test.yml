@@ -1,0 +1,31 @@
+name: CI python test auth
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  python-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        working-directory: apps/auth
+        run: pip install -r requirements.txt
+
+      - name: Install dev-dependencies
+        working-directory: apps/auth
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        working-directory: apps/auth
+        run: pytest
