@@ -1,11 +1,15 @@
+from src.domain.models.angle import Angle
+from src.domain.models.uobject import DictUObject
+from src.domain.models.vector import Vector
+from src.infrastructure.adapters.damageable_object_adapter import DamageableObjectAdapter
 from src.infrastructure.adapters.fuel_consumer_adapter import FuelConsumerAdapter
 from src.infrastructure.adapters.movable_adapter import MovableObjectAdapter
 from src.infrastructure.adapters.movable_with_velocity_adapter import MovableWithVelocityAdapter
 from src.infrastructure.adapters.move_fuel_consumer_adapter import MoveFuelConsumer
 from src.infrastructure.adapters.rotatable_adapter import RotatableObjectAdapter
-from src.domain.models.angle import Angle
-from src.domain.models.vector import Vector
-from src.domain.models.uobject import DictUObject
+from src.infrastructure.adapters.shootable_object_adapter import ShootableObjectAdapter
+from src.infrastructure.adapters.targetable_object_adapter import TargetableObjectAdapter
+from src.infrastructure.adapters.weapon_object_adapter import WeaponObjectAdapter
 
 
 def make_rotatable_object(angle: Angle, angular_velocity: Angle) -> RotatableObjectAdapter:
@@ -51,3 +55,63 @@ def make_movable_fuel_consumer(
     uobject = DictUObject(data)
     movable_object = MoveFuelConsumer(uobject)
     return movable_object
+
+
+def make_weapon_object(
+        weapon_damage: int,
+        weapon_range: int,
+        can_shoot: bool
+) -> WeaponObjectAdapter:
+    data = {
+        "damage": weapon_damage,
+        "range": weapon_range,
+        "can_shoot": can_shoot,
+    }
+    uobject = DictUObject(data)
+    weapon_object = WeaponObjectAdapter(uobject)
+    return weapon_object
+
+
+def make_shooter_object(
+        position: Vector,
+        velocity: Vector,
+        weapon_damage: int,
+        weapon_range: int,
+        can_shoot: bool
+) -> ShootableObjectAdapter:
+    data = {
+        "position": position,
+        "velocity": velocity,
+        "damage": weapon_damage,
+        "range": weapon_range,
+        "can_shoot": can_shoot,
+    }
+    uobject = DictUObject(data)
+    shooter_object = ShootableObjectAdapter(uobject)
+    return shooter_object
+
+
+def make_damageable_object(
+        health_points: int
+) -> DamageableObjectAdapter:
+    data = {
+        "health_points": health_points,
+    }
+    uobject = DictUObject(data)
+    damageable_object = DamageableObjectAdapter(uobject)
+    return damageable_object
+
+
+def make_targetable_object(
+        position: Vector,
+        velocity: Vector,
+        health_points: int
+) -> TargetableObjectAdapter:
+    data = {
+        "position": position,
+        "velocity": velocity,
+        "health_points": health_points,
+    }
+    uobject = DictUObject(data)
+    targetable_object = TargetableObjectAdapter(uobject)
+    return targetable_object
