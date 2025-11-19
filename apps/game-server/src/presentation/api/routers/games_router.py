@@ -4,7 +4,10 @@ from src.presentation.api.dependencies import get_game_service
 from src.application.exceptions.game_session import GameNotFoundError
 from src.application.services.game_service import GameService
 from src.application.schemas.agent_message import AgentMessage
+from src.presentation.schemas.command_response import CommandResponse
 from src.presentation.schemas.create_game_request import CreateGameRequest
+from src.presentation.schemas.create_game_response import CreateGameResponse
+from src.presentation.schemas.delete_game_response import DeleteGameResponse
 
 router = APIRouter(
     prefix="/games",
@@ -12,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.post('/command')
+@router.post('/command', response_model=CommandResponse)
 async def accept_agent_command(
     message: AgentMessage,
     game_service: GameService = Depends(get_game_service)
@@ -29,10 +32,12 @@ async def accept_agent_command(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Command failed: {str(e)}")
     else:
-        return {"status": "accepted"}
+        return CommandResponse(
+            status="accepted"
+        )
 
 
-@router.post('/')
+@router.post('/',  response_model=CreateGameResponse)
 async def create_game_session(
     request: CreateGameRequest,
     game_service: GameService = Depends(get_game_service)
@@ -47,11 +52,16 @@ async def create_game_session(
     :param game_service: Сервис игровых сессий.
     :return: Словарь с ключом "game_id" и строковым представлением UUID сессии.
     """
-    game_id = game_service.create_game(ruleset=request.game_type)
-    return {"game_id": str(game_id)}
+    game_id = game_service.create_game_with_id(
+        game_id=request.game_id,
+        ruleset=request.game_type
+    )
+    return CreateGameResponse(
+        game_id = str(game_id)
+    )
 
 
-@router.delete('/{game_id}')
+@router.delete('/{game_id}', response_model=DeleteGameResponse)
 async def delete_game_session(
     game_id: str,
     game_service: GameService = Depends(get_game_service)
@@ -68,7 +78,9 @@ async def delete_game_session(
         game_service.stop_game(game_id)
     except GameNotFoundError as e:
         raise HTTPException(404, f"Game '{game_id}' not found.")
-    return {"status": "terminated"}
+    return DeleteGameResponse(
+        status="terminated"
+    )
 
 
 @router.get('/')

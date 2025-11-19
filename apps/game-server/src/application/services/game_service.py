@@ -1,3 +1,5 @@
+import logging
+
 from src.application.exceptions import game_session_repository as exceptions
 from src.application.interfaces.command_executor import ICommandExecutor
 from src.application.interfaces.factories.game_session_factory import IGameSessionFactory
@@ -6,23 +8,42 @@ from src.domain.interfaces.repositories.game_session_repository import IGameSess
 from src.domain.interfaces.uobject import UObject
 from src.domain.models.game_session import GameSession
 
+logger = logging.getLogger(__name__)
+
 
 class GameService:
     def __init__(
-        self,
-        command_executor: ICommandExecutor,
-        repository: IGameSessionRepository,
-        session_factory: IGameSessionFactory,
+            self,
+            command_executor: ICommandExecutor,
+            repository: IGameSessionRepository,
+            session_factory: IGameSessionFactory,
     ):
         self._repository = repository
         self._command_executor = command_executor
         self._session_factory = session_factory
 
-    def create_game(self, ruleset: str = "default") -> str:
-        """Создаёт новую игровую сессию, возвращает game_id"""
-        session = self._session_factory.create()
+    def create_game(self, ruleset: str = "default", participants: list[str] = None) -> str:
+        """Создаёт новую игровую сессию, возвращает game_id"""  # Преобразуем список в множество для уникальности и передаем в фабрику
+        participants_set = set(participants) if participants else set()
+        session = self._session_factory.create(participants_set)
         self._repository.add(session)
         self._command_executor.start(session.id, ruleset)
+        logger.info(f"Created game session {session.id} for participants {participants_set}")
+        return session.id
+
+    def create_game_with_id(self, game_id: str, ruleset: str = "default") -> str:
+        """
+        Создаёт новую игровую сессию с указанным game_id.
+        :param game_id: Уникальный ID сессии, предоставленный извне.
+        :param ruleset: Тип правил для инициализации сессии.
+        :return: Id новой сессии.
+        :raises GameAlreadyExistsError: Если сессия с таким game_id уже существует.
+        """
+        # Создаём сессию с предоставленным ID
+        session = self._session_factory.create_with_id(game_id) # Вызываем фабрику, передавая ID
+        self._repository.add(session)
+        self._command_executor.start(session.id, ruleset)
+        logger.info(f"Created game session {session.id}")
         return session.id
 
     def stop_game(self, game_id: str) -> None:

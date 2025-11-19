@@ -17,16 +17,30 @@ def set_infrastructure_scope():
     IoC[BaseCommand].resolve('IoC.Scope.Set', 'infrastructure_scope').execute()
 
 
-def create_game_session(test_client: TestClient, game_type: str = "test") -> str:
+def create_game_session(
+        test_client: TestClient,
+        game_id: str,
+        user_id: str,
+        token: str,
+        game_type: str = "test"
+) -> str:
     """
     Создаёт новую игровую сессию через API и возвращает её идентификатор.
-    :param test_client: Клиент для обмена сообщений с тестируемым сервером
+    :param test_client: Клиент для обмена сообщений с тестируемым сервером.
+    :param game_id: Идентификатор создаваемой игровой сессии.
+    :param user_id: Идентификатор пользователя, инициирующего создание сессии.
+    :param token: JWT-токен.
     :param game_type: Тип игры
     :return: Идентификатор игровой сессии
     """
     response = test_client.post(
         f'/api/games',
-        json={"game_type": game_type}
+        json={
+            "user_id": user_id,
+            "game_id": game_id,
+            "game_type": game_type
+        },
+        headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
     data = response.json()
@@ -34,14 +48,22 @@ def create_game_session(test_client: TestClient, game_type: str = "test") -> str
     return data['game_id']
 
 
-def delete_game_session(test_client: TestClient, game_id: str) -> None:
+def delete_game_session(
+        test_client: TestClient,
+        game_id: str,
+        token: str,
+) -> None:
     """
     Завершает игровую сессию через API и проверяет корректность ответа.
-    :param test_client: Клиент для обмена сообщений с тестируемым сервером
+    :param test_client: Клиент для обмена сообщений с тестируемым сервером.
+    :param token: JWT-токен.
     :param game_id: Идентификатор игровой сессии
     """
     # Удаляем игровую сессию
-    response = test_client.delete(f'/api/games/{game_id}')
+    response = test_client.delete(
+        f'/api/games/{game_id}',
+        headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert 'status' in data
@@ -49,6 +71,7 @@ def delete_game_session(test_client: TestClient, game_id: str) -> None:
 
 
 def endpoint_worker(
+        worker_idx: int,
         test_client: TestClient,
         initial_game_objects: dict[str, UObject],
         expected_game_objects: dict[str, UObject],
@@ -64,17 +87,21 @@ def endpoint_worker(
     5. Проверяет, что состояние объекта изменилось в соответствии с ожиданиями.
     6. Завершает сессию.
 
-    :param test_client: Клиент для обмена сообщений с тестируемым сервером
-    :param initial_game_objects: Входные тестовые данные
-    :param expected_game_objects: Ожидаемые тестовые данные
+    :param test_client: Клиент для обмена сообщений с тестируемым сервером.
+    :param worker_idx: Идентификатор воркера.
+    :param initial_game_objects: Входные тестовые данные.
+    :param expected_game_objects: Ожидаемые тестовые данные.
     """
+    game_id = f"game_{worker_idx}"
+    user_id = "user_0"
     # Настройка скоупа
     set_infrastructure_scope()
-    # Инициализация игровой сессии
-    game_id = create_game_session(test_client)
-
     # Генерируем токен для этой сессии
-    token = create_test_token(game_id=game_id, user_id="user_0")
+    token = create_test_token(game_id=game_id, user_id=user_id)
+
+    # Инициализация игровой сессии
+    game_id = create_game_session(test_client, game_id, user_id, token)
+
 
     # Проверяем статус игровой сессии
     response = test_client.get(f'/api/games/{game_id}')
@@ -104,6 +131,7 @@ def endpoint_worker(
             f'/api/games/command',
             json={
                 "game_id": game_id,
+                "user_id": user_id,
                 "object_id": object_id,
                 "operation_id": "movement",
                 "arguments": {
@@ -131,7 +159,7 @@ def endpoint_worker(
         assert data['objects'][key] == expected_game_objects[key]
 
     # Завершение игровой сессии
-    delete_game_session(test_client, game_id)
+    delete_game_session(test_client, game_id, token)
 
 
 @pytest.mark.parametrize(
@@ -160,12 +188,13 @@ def test_several_sessions(
         futures = [
             executor.submit(
                 endpoint_worker,
+                thread_id,
                 test_client,
                 # Полная копия для защиты от изменений
                 initial_game_objects,
                 expected_game_objects
             )
-            for _ in range(count_workers)
+            for thread_id in range(count_workers)
         ]
         for future in futures:
             future.result()

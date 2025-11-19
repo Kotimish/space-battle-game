@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import Request
@@ -45,7 +46,8 @@ class MiddlewareOrchestrator(IMiddleware):
             return await handler(request)
         except BaseGameException as e:
             return JSONResponse(status_code=e.status_code, content={"detail": e.message})
-        except Exception:
+        except Exception as exception:
+            logging.warning(exception)
             return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
     def _wrap(self, middleware: IMiddleware, next_handler):

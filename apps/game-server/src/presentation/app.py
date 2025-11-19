@@ -14,6 +14,11 @@ app.include_router(api_router)
 # Регистрация middleware
 middlewares = [
     LoggingMiddleware(),
-    AuthMiddleware(protected_paths=["/api/games/command"]),
+    AuthMiddleware(protected_paths=[
+        # Создание игровых сессий
+        ("/api/games/", {"POST"}),
+        # Отправка команд
+        ("/api/games/command", {"POST"}),
+    ]),
 ]
 app.middleware("http")(MiddlewareOrchestrator(middlewares))
