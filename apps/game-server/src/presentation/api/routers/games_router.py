@@ -84,7 +84,7 @@ async def delete_game_session(
 
 
 @router.get('/')
-async def get_game_info(
+async def get_all_games_info(
     game_service: GameService = Depends(get_game_service)
 ):
     """
