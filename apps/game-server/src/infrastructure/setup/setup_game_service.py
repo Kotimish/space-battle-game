@@ -4,7 +4,7 @@ from src.infrastructure.executors.command_executor import CommandExecutor
 from src.infrastructure.factories.command_handler.threaded_command_handler_factory import ThreadedCommandHandlerFactory
 from src.infrastructure.factories.game_session_factory import GameSessionFactory
 from src.infrastructure.repositories.game_session_repository import InMemoryGameSessionRepository
-from src.infrastructure.rules import DefaultRuleset, TestRuleset
+from src.infrastructure.rules import DefaultRuleset, TestRuleset, StandardBattleRuleset
 
 
 def setup_game_service() -> GameService:
@@ -19,6 +19,7 @@ def setup_game_service() -> GameService:
     rulesets = {
         "default": DefaultRuleset(),
         "test": TestRuleset(),
+        "standard": StandardBattleRuleset,
     }
     ruleset_resolver = RulesetResolver(rulesets)
     command_executor = CommandExecutor(session_repository, command_handler_factory, ruleset_resolver)
