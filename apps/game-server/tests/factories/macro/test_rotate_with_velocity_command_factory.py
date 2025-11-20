@@ -16,3 +16,18 @@ def test_rotate_with_velocity_factory_creates_macro_command():
     factory = RotateWithVelocityCommandFactory()
     command = factory.create(uobject, {})
     assert isinstance(command, RotateWithVelocityCommand)
+
+
+def test_rotate_with_velocity_factory_sets_angular_velocity_from_arguments():
+    """Тест установки angular_velocity через arguments"""
+    uobject = DictUObject({
+        "position": Vector(0, 0),
+        "velocity": Vector(5, 0),
+        "angle": Angle(1, 8)
+    })
+    factory = RotateWithVelocityCommandFactory()
+    command = factory.create(uobject, {
+        "angular_velocity": {"direction": 4, "directions_number": 8}
+    })
+    assert uobject.get_property("angular_velocity") == Angle(4, 8)
+    assert isinstance(command, RotateWithVelocityCommand)
