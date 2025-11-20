@@ -51,7 +51,6 @@ class ShootCommand(BaseCommand):
 
         # Векторное произведение
         cross = diff_x * weapon_direction.y - diff_y * weapon_direction.x
-        print(f"cross: {cross}")
         if cross != 0:
             return False
 

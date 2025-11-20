@@ -6,7 +6,7 @@ from src.domain.interfaces.uobject import UObject
 from src.domain.models.game_session import GameSession
 from src.domain.models.uobject import DictUObject
 from src.domain.models.vector import Vector
-from src.infrastructure.factories.commands.create_move_with_fuel_command import MoveWithFuelObjectCommandFactory
+from src.infrastructure.factories.commands.macro.create_move_with_fuel_command import MoveWithFuelObjectCommandFactory
 from src.infrastructure.factories.operation_router import OperationToCommandRouter
 
 

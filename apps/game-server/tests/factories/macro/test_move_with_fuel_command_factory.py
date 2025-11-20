@@ -1,7 +1,7 @@
 from src.application.commands.macro.move_with_fuel_command import MoveWithFuelCommand
 from src.domain.models.uobject import DictUObject
 from src.domain.models.vector import Vector
-from src.infrastructure.factories.commands.create_move_with_fuel_command import MoveWithFuelObjectCommandFactory
+from src.infrastructure.factories.commands.macro.create_move_with_fuel_command import MoveWithFuelObjectCommandFactory
 
 
 def test_move_with_fuel_factory_creates_macro_command():
