@@ -19,7 +19,7 @@ def setup_game_service() -> GameService:
     rulesets = {
         "default": DefaultRuleset(),
         "test": TestRuleset(),
-        "standard": StandardBattleRuleset,
+        "standard": StandardBattleRuleset(),
     }
     ruleset_resolver = RulesetResolver(rulesets)
     command_executor = CommandExecutor(session_repository, command_handler_factory, ruleset_resolver)
