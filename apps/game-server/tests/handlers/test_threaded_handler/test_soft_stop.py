@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from src.application.commands.move import MoveCommand
 from src.domain.models.vector import Vector
 from src.infrastructure.commands.control.soft_stop_command import SoftStopCommand
-from src.infrastructure.commands.control.start_command_handler import StartCommandHandler
+from src.infrastructure.commands.control.start_command_handler import RunCommand
 from src.infrastructure.handlers.threaded_command_handler import ThreadedCommandHandler
 from tests.helpers.factories import make_movable_object
 
@@ -33,7 +33,8 @@ def test_soft_stop(event_loop: ThreadedCommandHandler) -> None:
     for command in commands:
         event_loop.enqueue_command(command)
 
-    StartCommandHandler(event_loop).execute()
+    # StartCommandHandler(event_loop).execute()
+    event_loop.start()
     # Ожидание завершение через команду-пустышку
     event.wait()
     assert movable_object.get_position() == end_position
