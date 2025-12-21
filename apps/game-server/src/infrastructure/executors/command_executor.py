@@ -5,6 +5,7 @@ from src.application.schemas.agent_message import AgentMessage
 from src.application.services.ruleset_resolver import RulesetResolver
 from src.domain.interfaces.base_command import BaseCommand
 from src.domain.interfaces.repositories.game_session_repository import IGameSessionRepository
+from src.infrastructure.commands.control.soft_stop_command import SoftStopCommand
 from src.infrastructure.commands.interpret_command import InterpretCommand
 from src.infrastructure.dependencies.ioc import IoC
 
@@ -42,11 +43,11 @@ class CommandExecutor(ICommandExecutor):
     def stop(self, game_id: str) -> None:
         if game_id in self._handlers:
             handler = self._handlers.pop(game_id)
-            handler.stop()
+            handler.enqueue_command(SoftStopCommand())
 
     def stop_all(self) -> None:
         for handler in self._handlers.values():
-            handler.stop()
+            handler.enqueue_command(SoftStopCommand())
 
 
     def enqueue_interpret_command(self, game_id: str, message: AgentMessage) -> None:

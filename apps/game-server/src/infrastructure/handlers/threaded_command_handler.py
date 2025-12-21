@@ -1,18 +1,27 @@
 import threading
 from queue import Queue, Empty
 
+from src.application.interfaces.command_handler import ICommandHandler
+from src.application.interfaces.states.command_handler_state import ICommandHandlerState
+from src.domain.interfaces.base_command import BaseCommand
 from src.infrastructure.handlers.command_handler import CommandHandler
 from src.infrastructure.handlers.exception_handler import ExceptionHandler
-from src.domain.interfaces.base_command import BaseCommand
-from src.application.interfaces.command_handler import ICommandHandler
+from src.infrastructure.states.command_handler_states import NormalState
 
 
 class ThreadedCommandHandler(ICommandHandler):
     """Класс реализации неблокирующего event-loop в отдельном потоке для команд"""
 
-    def __init__(self, queue: Queue[BaseCommand] = None, exception_handler: ExceptionHandler = None):
+    def __init__(
+            self,
+            queue: Queue[BaseCommand] = None,
+            exception_handler: ExceptionHandler = None,
+            initial_state: ICommandHandlerState = None
+    ):
         self._queue: Queue[BaseCommand] = queue or Queue()
         self._exception_handler = exception_handler or ExceptionHandler()
+        self._state = initial_state or NormalState()
+        # Технические атрибуты
         self._worker: threading.Thread | None = None
         self._running = threading.Event()
         self._soft_stop = False
@@ -36,19 +45,11 @@ class ThreadedCommandHandler(ICommandHandler):
         # Отработка пред-команд
         self._before_hooks.start()
         # Основной цикл выполнения команд
-        while (
-                self._running.is_set() or
-                (not self._queue.empty() and self._soft_stop)
-        ):
-            try:
-                command = self.dequeue_command()
-            except Empty:
-                continue
-            try:
-                command.execute()
-            except Exception as exception:
-                handler = self._exception_handler.handle(command, exception)
-                self.enqueue_command(handler)
+        while self._state is not None:
+            # Обработка через состояние
+            next_state = self._state.handle(self._queue, self._exception_handler)
+            # Изменение состояния
+            self._state = next_state
         # Отработка пост-команд
         self._after_hooks.start()
 
